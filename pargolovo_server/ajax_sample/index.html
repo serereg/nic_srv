@@ -1,0 +1,179 @@
+﻿<html>
+
+<head>
+
+<script type="text/javascript">
+
+function print_console(text){
+	document.getElementById("status").value = text;
+}
+
+function aread()
+{    
+    print_console("Запрос инициирован...");
+    
+    var request = new XMLHttpRequest();
+    request.open('GET','http://localhost:8080/ahandler.htm',true);
+    request.addEventListener('readystatechange', function() {     
+        
+        if(request.readyState == 4)
+        {
+        	if(request.status==200)
+        	{
+	            print_console("Обмен завершен успешно.");
+	            document.getElementById("writedt").value = request.responseText;
+        	}
+        	else
+        	{
+	            print_console("Ошибка:" + request.status);
+        	}
+        }
+
+       });
+   	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+
+    request.send("");
+
+}
+
+function readval_t()
+{
+    if (document.getElementById("iseditable").value == "0")
+        aread();
+    setTimeout(readval_t, 1000);
+
+}
+
+
+function check_real(str)
+{
+    let result = str.match(/^[+-]?\d+(\.\d+)?$/);
+
+    return result != null;
+}
+
+function dbclickfield()
+{
+    set_editable(true);
+}
+
+function set_editable(val)
+{
+    if (val)
+    {
+        document.getElementById("writedt").readOnly = "";
+        document.getElementById("iseditable").value = "1";
+        painterror();
+    }
+    else
+    {
+        document.getElementById("writedt").readOnly = "readonly";
+        document.getElementById("iseditable").value = "0";
+        document.getElementById("writedt").className = "monitor";
+    }
+}
+
+function painterror()
+{
+    if (check_real(document.getElementById("writedt").value))
+        document.getElementById("writedt").className = "edit";
+    else
+        document.getElementById("writedt").className = "error";
+}
+
+function keypressfield(key)
+{
+    if (key == "Enter")
+    {
+        if (check_real(document.getElementById("writedt").value))
+        {
+            awrite();
+            set_editable(false);
+        }
+        else
+        {
+            alert("Неверный формат числа");
+        }
+    }
+    else if(key == "Escape")
+    {
+        set_editable(false);
+    }
+    else
+    {
+        if (document.getElementById("iseditable").value == "1")
+            painterror();
+    }
+}
+
+function awrite()
+{
+    print_console("Запрос инициирован...");
+    
+    var params = "?val1=" + document.getElementById("writedt").value;
+    
+    var request = new XMLHttpRequest();
+    request.open('GET','http://localhost:8080/ahandler.htm'+params,true);
+    request.addEventListener('readystatechange', function() {   	        
+        
+        if(request.readyState == 4)
+        {
+        	if(request.status==200)
+        	{
+	            print_console("Обмен завершен успешно.");
+        	}
+        	else
+        	{
+	            print_console("Ошибка:" + request.status);
+        	}
+        }
+
+       });
+   	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+
+    request.send("");
+
+
+}
+
+</script>
+
+<style>
+    .edit {
+        background-color: white;
+    }
+
+    .monitor {
+        background-color: #AAAAAA;
+    }
+
+    .error {
+        background-color: #FF0000;
+    }
+</style>
+
+</head>
+
+
+
+<body onload="readval_t()">
+
+<input id="status" value="status" style="width:500px">
+
+<br/>
+
+<!--<button id="ReadB" onclick="aread()">Read</button>-->
+<!--<input id="readdt" readonly="readonly" value="....">-->
+
+
+<input id="writedt" value="...." ondblclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
+<!--<button id="WriteB" onclick="awrite()">Write</button>-->
+
+<input id="iseditable" type="hidden" value="0" />
+
+</body>
+
+
+</html>
