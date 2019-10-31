@@ -21,7 +21,21 @@ function aread()
         	if(request.status==200)
         	{
 	            print_console("Обмен завершен успешно.");
-	            document.getElementById("writedt").value = request.responseText;
+				
+				var pars = request.responseText.split(";");
+				
+				try
+				{
+					document.getElementById("pv1").value = pars[0];
+					document.getElementById("pv2").value = pars[1];
+					document.getElementById("pv3").value = pars[2];
+				
+					var index = parseInt(document.getElementById("unitn").value, 10);
+					document.getElementById("writedt").value = pars[2+index]; //request.responseText;
+				}catch(exception)
+				{
+					document.getElementById("writedt").value = "jopa";
+				};
         	}
         	else
         	{
@@ -111,8 +125,10 @@ function awrite()
 {
     print_console("Запрос инициирован...");
     
-    var params = "?val1=" + document.getElementById("writedt").value;
+    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("writedt").value;
     
+	//alert(params);
+	
     var request = new XMLHttpRequest();
     request.open('GET','http://localhost:8080/ahandler.htm'+params,true);
     request.addEventListener('readystatechange', function() {   	        
@@ -134,8 +150,25 @@ function awrite()
 	request.setRequestHeader("Cache-Control", "no-cache");
 
     request.send("");
+}
 
 
+function setunit(unit)
+{
+	document.getElementById("unitn").value=unit;
+	
+	document.getElementById("writedt").value = "...";
+	
+	let i = 1;
+	var uniti = parseInt(unit,10);
+	while (i < 4) 
+	{ 
+		if(i==uniti)
+			document.getElementById("pv"+i).className = "selected";
+		else
+			document.getElementById("pv"+i).className = "monitor";
+		i++;
+	}
 }
 
 </script>
@@ -152,6 +185,11 @@ function awrite()
     .error {
         background-color: #FF0000;
     }
+	
+	.selected
+	{
+		background-color: #00FF00;
+	}
 </style>
 
 </head>
@@ -168,10 +206,19 @@ function awrite()
 <!--<input id="readdt" readonly="readonly" value="....">-->
 
 
+<input readOnly="readOnly" class="monitor" id="pv1" onclick="setunit(1)" value="">
+<input readOnly="readOnly" class="monitor" id="pv2" onclick="setunit(2)" value="">
+<input readOnly="readOnly" class="monitor" id="pv3" onclick="setunit(3)" value="">
+
+<br/>
+
 <input id="writedt" value="...." ondblclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
 <!--<button id="WriteB" onclick="awrite()">Write</button>-->
 
+
+
 <input id="iseditable" type="hidden" value="0" />
+<input id="unitn" type="hidden" value="1" />
 
 </body>
 
