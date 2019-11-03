@@ -13,7 +13,7 @@ function aread()
     print_console("Запрос инициирован...");
     
     var request = new XMLHttpRequest();
-    request.open('GET','http://localhost:8080/ahandler.htm',true);
+    request.open('GET',document.location.origin+'/ahandler.htm',true);
     request.addEventListener('readystatechange', function() {     
         
         if(request.readyState == 4)
@@ -130,7 +130,7 @@ function awrite()
 	//alert(params);
 	
     var request = new XMLHttpRequest();
-    request.open('GET','http://localhost:8080/ahandler.htm'+params,true);
+    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
     request.addEventListener('readystatechange', function() {   	        
         
         if(request.readyState == 4)
