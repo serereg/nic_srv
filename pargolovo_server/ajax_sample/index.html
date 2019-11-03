@@ -2,184 +2,18 @@
 
 <head>
 
-<script type="text/javascript">
+<script src="main.js" type="text/javascript"></script>
 
-function print_console(text){
-	document.getElementById("status").value = text;
-}
-
-function aread()
-{    
-    print_console("Запрос инициирован...");
-    
-    var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm',true);
-    request.addEventListener('readystatechange', function() {     
-        
-        if(request.readyState == 4)
-        {
-        	if(request.status==200)
-        	{
-	            print_console("Обмен завершен успешно.");
-				
-				var pars = request.responseText.split(";");
-				
-				try
-				{
-					document.getElementById("pv1").value = pars[0];
-					document.getElementById("pv2").value = pars[1];
-					document.getElementById("pv3").value = pars[2];
-				
-					var index = parseInt(document.getElementById("unitn").value, 10);
-					document.getElementById("writedt").value = pars[2+index]; //request.responseText;
-				}catch(exception)
-				{
-					document.getElementById("writedt").value = "jopa";
-				};
-        	}
-        	else
-        	{
-	            print_console("Ошибка:" + request.status);
-        	}
-        }
-
-       });
-   	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-
-    request.send("");
-
-}
-
-function readval_t()
-{
-    if (document.getElementById("iseditable").value == "0")
-        aread();
-    setTimeout(readval_t, 1000);
-
-}
-
-
-function check_real(str)
-{
-    let result = str.match(/^[+-]?\d+(\.\d+)?$/);
-
-    return result != null;
-}
-
-function dbclickfield()
-{
-    set_editable(true);
-}
-
-function set_editable(val)
-{
-    if (val)
-    {
-        document.getElementById("writedt").readOnly = "";
-        document.getElementById("iseditable").value = "1";
-        painterror();
-    }
-    else
-    {
-        document.getElementById("writedt").readOnly = "readonly";
-        document.getElementById("iseditable").value = "0";
-        document.getElementById("writedt").className = "monitor";
-    }
-}
-
-function painterror()
-{
-    if (check_real(document.getElementById("writedt").value))
-        document.getElementById("writedt").className = "edit";
-    else
-        document.getElementById("writedt").className = "error";
-}
-
-function keypressfield(key)
-{
-    if (key == "Enter")
-    {
-        if (check_real(document.getElementById("writedt").value))
-        {
-            awrite();
-            set_editable(false);
-        }
-        else
-        {
-            alert("Неверный формат числа");
-        }
-    }
-    else if(key == "Escape")
-    {
-        set_editable(false);
-    }
-    else
-    {
-        if (document.getElementById("iseditable").value == "1")
-            painterror();
-    }
-}
-
-function awrite()
-{
-    print_console("Запрос инициирован...");
-    
-    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("writedt").value;
-    
-	//alert(params);
-	
-    var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
-    request.addEventListener('readystatechange', function() {   	        
-        
-        if(request.readyState == 4)
-        {
-        	if(request.status==200)
-        	{
-	            print_console("Обмен завершен успешно.");
-        	}
-        	else
-        	{
-	            print_console("Ошибка:" + request.status);
-        	}
-        }
-
-       });
-   	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-
-    request.send("");
-}
-
-
-function setunit(unit)
-{
-	document.getElementById("unitn").value=unit;
-	
-	document.getElementById("writedt").value = "...";
-	
-	let i = 1;
-	var uniti = parseInt(unit,10);
-	while (i < 4) 
-	{ 
-		if(i==uniti)
-			document.getElementById("pv"+i).className = "selected";
-		else
-			document.getElementById("pv"+i).className = "monitor";
-		i++;
-	}
-}
-
-</script>
 
 <style>
     .edit {
         background-color: white;
+		width:20%;
     }
 
     .monitor {
         background-color: #AAAAAA;
+		width:20%;
     }
 
     .error {
@@ -189,6 +23,7 @@ function setunit(unit)
 	.selected
 	{
 		background-color: #00FF00;
+		width:20%;
 	}
 </style>
 
@@ -205,14 +40,27 @@ function setunit(unit)
 <!--<button id="ReadB" onclick="aread()">Read</button>-->
 <!--<input id="readdt" readonly="readonly" value="....">-->
 
-
+Cooler 1-4:<br>
 <input readOnly="readOnly" class="monitor" id="pv1" onclick="setunit(1)" value="">
 <input readOnly="readOnly" class="monitor" id="pv2" onclick="setunit(2)" value="">
 <input readOnly="readOnly" class="monitor" id="pv3" onclick="setunit(3)" value="">
-
+<input readOnly="readOnly" class="monitor" id="pv4" onclick="setunit(4)" value="">
+<br>
+Cooler 4-8:<br>
+<input readOnly="readOnly" class="monitor" id="pv5" onclick="setunit(5)" value="">
+<input readOnly="readOnly" class="monitor" id="pv6" onclick="setunit(6)" value="">
+<input readOnly="readOnly" class="monitor" id="pv7" onclick="setunit(7)" value="">
+<input readOnly="readOnly" class="monitor" id="pv8" onclick="setunit(8)" value="">
+<br>
+Cooler 8-12:<br>
+<input readOnly="readOnly" class="monitor" id="pv9" onclick="setunit(9)" value="">
+<input readOnly="readOnly" class="monitor" id="pv10" onclick="setunit(10)" value="">
+<input readOnly="readOnly" class="monitor" id="pv11" onclick="setunit(11)" value="">
+<input readOnly="readOnly" class="monitor" id="pv12" onclick="setunit(12)" value="">
+<br>
 <br/>
 
-<input id="writedt" value="...." ondblclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
+<input id="writedt" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
 <!--<button id="WriteB" onclick="awrite()">Write</button>-->
 
 
