@@ -36,7 +36,8 @@ class Cooler:
         print('SetSP')
         pass
     def GetPV(self):
-        print('GetPV')
+        #print('GetPV')
+        self.pv.Value = self.sp
         return self.pv.Value
         
 

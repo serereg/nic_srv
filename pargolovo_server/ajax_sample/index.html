@@ -42,7 +42,7 @@ function aread()
 					//document.getElementById("pv13").value = pars[12];
 					
 					var index = parseInt(document.getElementById("unitn").value, 10);
-					document.getElementById("writedt").value = pars[2+index]; //request.responseText;
+					document.getElementById("writedt").value = pars[10+index]; //request.responseText;
 				}catch(exception)
 				{
 					document.getElementById("writedt").value = "jopa";
@@ -211,6 +211,7 @@ function setunit(unit)
 
 
 <body onload="readval_t()">
+<meta http-equiv="Cache-Control" content="no-cache">
 
 <input id="status" value="status" style="width:500px">
 

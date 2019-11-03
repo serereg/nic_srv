@@ -17,21 +17,24 @@ async def handle(request):
         for t in range(1,16):
             cur_cooler = list_Cooler[t]
             if ('val'+str(t)) in request.rel_url.query.keys():
-                list_Cooler[t].SetSP(request.rel_url.query['val'+ str(t)])
-                print(str(t)+"/"+list_Cooler[t].sp)
+                cur_cooler.SetSP(request.rel_url.query['val'+ str(t)])
+                print(str(t)+"/"+cur_cooler.sp)
                 return web.Response(text='OK')
             elif ('cmd'+str(t)) in request.rel_url.query.keys():
                 if request.rel_url.query['cmd' + str(t)] == 'YOn':
-                    list_Cooler[t].YOn()
+                    cur_cooler.YOn()
                     return web.Response(text='OK')
             elif ('cmd'+str(t)) in request.rel_url.query.keys():
                 if request.rel_url.query['cmd' + str(t)] == 'YOff':
-                    list_Cooler[t].YOff()
+                    cur_cooler.YOff()
                     return web.Response(text='OK')
             elif len(request.rel_url.query.keys())==0:
-                return web.Response(text="21;22;23;"+str(list_Cooler[1].sp)+';'+str(list_Cooler[2].sp)+';'+str(list_Cooler[3].sp))
-                #return web.Response(text= str(cur_cooler.GetPV()))
-            list_Cooler[t] = cur_cooler
+                strpv = ""
+                strsp = ""
+                for k in range(1,12):
+                    strpv = strpv+str(list_Cooler[k].GetPV())+";"
+                    strsp = strsp+str(list_Cooler[k].sp)+";"
+                return web.Response(text=strpv+strsp)
 async def ws_browser_handler(self, request):
         pass
 
