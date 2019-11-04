@@ -29,8 +29,8 @@ function aread()
 				{
 					for (var i = 0; i < 12; i++) {
 						var num = i+1
-						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Zd= "+pars[i+11];
-						if (pars[22+i]=="True")
+						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Zd= "+pars[i+12];
+						if (pars[24+i]=="True")
 						{
 							document.getElementById("pv"+num.toString()).className = "button_is_on";
 						}
@@ -41,8 +41,8 @@ function aread()
 					}
 					
 					var index = parseInt(document.getElementById("unitn").value, 10);
-					document.getElementById("writedt").value = pars[10+index]; //request.responseText;
-					if (pars[21+index]=="True")
+					document.getElementById("write_sp").value = pars[11+index]; //request.responseText;
+					if (pars[23+index]=="True")
 					{
 						document.getElementById("CmdOn").className = "button_is_on";
 						document.getElementById("CmdOff").className = "button_is_on";
@@ -55,7 +55,7 @@ function aread()
 					
 				}catch(exception)
 				{
-					document.getElementById("writedt").value = "exception";
+					document.getElementById("write_sp").value = "exception";
 				};
         	}
         	else
@@ -97,31 +97,31 @@ function set_editable(val)
 {
     if (val)
     {
-        document.getElementById("writedt").readOnly = "";
+        document.getElementById("write_sp").readOnly = "";
         document.getElementById("iseditable").value = "1";
         painterror();
     }
     else
     {
-        document.getElementById("writedt").readOnly = "readonly";
+        document.getElementById("write_sp").readOnly = "readonly";
         document.getElementById("iseditable").value = "0";
-        document.getElementById("writedt").className = "monitor";
+        document.getElementById("write_sp").className = "monitor";
     }
 }
 
 function painterror()
 {
-    if (check_real(document.getElementById("writedt").value))
-        document.getElementById("writedt").className = "edit";
+    if (check_real(document.getElementById("write_sp").value))
+        document.getElementById("write_sp").className = "edit";
     else
-        document.getElementById("writedt").className = "error";
+        document.getElementById("write_sp").className = "error";
 }
 
 function keypressfield(key)
 {
     if (key == "Enter")
     {
-        if (check_real(document.getElementById("writedt").value))
+        if (check_real(document.getElementById("write_sp").value))
         {
             awrite();
             set_editable(false);
@@ -166,7 +166,7 @@ function awrite()
 {
     print_console("Запрос инициирован...");
     
-    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("writedt").value;
+    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("write_sp").value;
     
 	//alert(params);
 	
@@ -198,7 +198,7 @@ function setunit(unit)
 {
 	document.getElementById("unitn").value=unit;
 	
-	document.getElementById("writedt").value = "...";
+	document.getElementById("write_sp").value = "...";
 	
 	let i = 1;
 	var uniti = parseInt(unit,10);
@@ -294,7 +294,7 @@ CKT 8-12:<br>
 <br>
 <br/>
 
-<input id="writedt" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
+<input id="write_sp" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
 <br>
 <button id="CmdOn" onclick="cmdon()">On</button>
 <button id="CmdOff" onclick="cmdoff()">Off</button>

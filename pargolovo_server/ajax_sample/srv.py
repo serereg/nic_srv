@@ -14,7 +14,8 @@ async def handle(request):
     if name == 'index.html':
         return web.FileResponse(name)
     else:
-        for t in range(1,12):
+        for t in range(1,13):
+            print(t)
             cur_cooler = list_Cooler[t]
             if ('val'+str(t)) in request.rel_url.query.keys():
                 cur_cooler.SetSP(request.rel_url.query['val'+ str(t)])
@@ -31,7 +32,7 @@ async def handle(request):
                 strpv = ""
                 strsp = ""
                 strstate = ""
-                for k in range(1,12):
+                for k in range(1,13):
                     strpv = strpv+str(list_Cooler[k].GetPV())+";"
                     strsp = strsp+str(list_Cooler[k].sp)+";"
                     strstate = strstate+str(list_Cooler[k].isOn())+";"
