@@ -27,25 +27,35 @@ function aread()
 				
 				try
 				{
-					document.getElementById("pv1").value = pars[0];
-					document.getElementById("pv2").value = pars[1];
-					document.getElementById("pv3").value = pars[2];
-					document.getElementById("pv4").value = pars[3];
-					document.getElementById("pv5").value = pars[4];
-					document.getElementById("pv6").value = pars[5];
-					document.getElementById("pv7").value = pars[6];
-					document.getElementById("pv8").value = pars[7];
-					document.getElementById("pv9").value = pars[8];
-					document.getElementById("pv10").value = pars[9];
-					document.getElementById("pv11").value = pars[10];
-					document.getElementById("pv12").value = pars[11];
-					//document.getElementById("pv13").value = pars[12];
+					for (var i = 0; i < 12; i++) {
+						var num = i+1
+						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Zd= "+pars[i+11];
+						if (pars[22+i]=="True")
+						{
+							document.getElementById("pv"+num.toString()).className = "button_is_on";
+						}
+						else
+						{
+							document.getElementById("pv"+num.toString()).className = "button_is_off";
+						}
+					}
 					
 					var index = parseInt(document.getElementById("unitn").value, 10);
 					document.getElementById("writedt").value = pars[10+index]; //request.responseText;
+					if (pars[21+index]=="True")
+					{
+						document.getElementById("CmdOn").className = "button_is_on";
+						document.getElementById("CmdOff").className = "button_is_on";
+					}
+					else
+					{
+						document.getElementById("CmdOn").className = "button_is_off";
+						document.getElementById("CmdOff").className = "button_is_off";
+					}
+					
 				}catch(exception)
 				{
-					document.getElementById("writedt").value = "jopa";
+					document.getElementById("writedt").value = "exception";
 				};
         	}
         	else
@@ -132,6 +142,26 @@ function keypressfield(key)
     }
 }
 
+function cmdon()
+{
+    var params = "?cmd"+document.getElementById("unitn").value+"=YOn";
+	var request = new XMLHttpRequest();
+    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+	request.send("");
+}
+
+function cmdoff()
+{
+    var params = "?cmd"+document.getElementById("unitn").value+"=YOff";
+	var request = new XMLHttpRequest();
+    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+	request.send("");
+}
+
 function awrite()
 {
     print_console("Запрос инициирован...");
@@ -175,9 +205,9 @@ function setunit(unit)
 	while (i <= 12) 
 	{ 
 		if(i==uniti)
-			document.getElementById("pv"+i).className = "selected";
+			document.getElementById("pv"+i).style.color = white;//.className = "selected";
 		else
-			document.getElementById("pv"+i).className = "monitor";
+			document.getElementById("pv"+i).style.color = red;//.className = "monitor";
 		i++;
 	}
 }
@@ -187,22 +217,46 @@ function setunit(unit)
 <style>
     .edit {
         background-color: white;
-		width:20%;
+		//width:20%;
     }
 
     .monitor {
         background-color: #AAAAAA;
-		width:20%;
+		//width:20%;
     }
 
     .error {
         background-color: #FF0000;
     }
-	
 	.selected
 	{
-		background-color: #00FF00;
-		width:20%;
+		//background-color: #00FF00;
+		border-color: red;
+		//width:20%;
+	}
+	.button_is_on {
+	  background-color: #4CAF50;
+	  border: none;
+	  color: white;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	}
+	.button_is_off {
+	  background-color: #000;
+	  border: none;
+	  color: white;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	  margin: 4px 2px;
+	  cursor: pointer;
 	}
 </style>
 
@@ -220,19 +274,19 @@ function setunit(unit)
 <!--<button id="ReadB" onclick="aread()">Read</button>-->
 <!--<input id="readdt" readonly="readonly" value="....">-->
 
-Cooler 1-4:<br>
+CKT 1-4:<br>
 <input readOnly="readOnly" class="monitor" id="pv1" onclick="setunit(1)" value="">
 <input readOnly="readOnly" class="monitor" id="pv2" onclick="setunit(2)" value="">
 <input readOnly="readOnly" class="monitor" id="pv3" onclick="setunit(3)" value="">
 <input readOnly="readOnly" class="monitor" id="pv4" onclick="setunit(4)" value="">
 <br>
-Cooler 4-8:<br>
+CKT 4-8:<br>
 <input readOnly="readOnly" class="monitor" id="pv5" onclick="setunit(5)" value="">
 <input readOnly="readOnly" class="monitor" id="pv6" onclick="setunit(6)" value="">
 <input readOnly="readOnly" class="monitor" id="pv7" onclick="setunit(7)" value="">
 <input readOnly="readOnly" class="monitor" id="pv8" onclick="setunit(8)" value="">
 <br>
-Cooler 8-12:<br>
+CKT 8-12:<br>
 <input readOnly="readOnly" class="monitor" id="pv9" onclick="setunit(9)" value="">
 <input readOnly="readOnly" class="monitor" id="pv10" onclick="setunit(10)" value="">
 <input readOnly="readOnly" class="monitor" id="pv11" onclick="setunit(11)" value="">
@@ -241,8 +295,9 @@ Cooler 8-12:<br>
 <br/>
 
 <input id="writedt" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
-<!--<button id="WriteB" onclick="awrite()">Write</button>-->
-
+<br>
+<button id="CmdOn" onclick="cmdon()">On</button>
+<button id="CmdOff" onclick="cmdoff()">Off</button>
 
 
 <input id="iseditable" type="hidden" value="0" />

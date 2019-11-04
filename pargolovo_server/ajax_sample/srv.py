@@ -14,7 +14,7 @@ async def handle(request):
     if name == 'index.html':
         return web.FileResponse(name)
     else:
-        for t in range(1,16):
+        for t in range(1,12):
             cur_cooler = list_Cooler[t]
             if ('val'+str(t)) in request.rel_url.query.keys():
                 cur_cooler.SetSP(request.rel_url.query['val'+ str(t)])
@@ -24,17 +24,18 @@ async def handle(request):
                 if request.rel_url.query['cmd' + str(t)] == 'YOn':
                     cur_cooler.YOn()
                     return web.Response(text='OK')
-            elif ('cmd'+str(t)) in request.rel_url.query.keys():
                 if request.rel_url.query['cmd' + str(t)] == 'YOff':
                     cur_cooler.YOff()
                     return web.Response(text='OK')
             elif len(request.rel_url.query.keys())==0:
                 strpv = ""
                 strsp = ""
+                strstate = ""
                 for k in range(1,12):
                     strpv = strpv+str(list_Cooler[k].GetPV())+";"
                     strsp = strsp+str(list_Cooler[k].sp)+";"
-                return web.Response(text=strpv+strsp)
+                    strstate = strstate+str(list_Cooler[k].isOn())+";"
+                return web.Response(text=strpv+strsp+strstate)
 async def ws_browser_handler(self, request):
         pass
 

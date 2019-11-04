@@ -17,6 +17,7 @@ class Cooler:
     TagControl = ''
     TagSP = ''
     ControlString = ""
+    StateOn = False
     def __init__(self, num):
         self.num = num
         name = "CKT" + str(num)
@@ -27,9 +28,11 @@ class Cooler:
     
     def YOn(self):
         print('YOn')
+        self.StateOn = True # imitation
         pass
     def YOff(self):
         print('YOff')
+        self.StateOn = False # imitation
         pass
     def SetSP(self, nsp):
         self.sp = nsp
@@ -37,9 +40,10 @@ class Cooler:
         pass
     def GetPV(self):
         #print('GetPV')
-        self.pv.Value = self.sp
+        self.pv.Value = self.sp # imitation
         return self.pv.Value
-        
+    def isOn(self):
+        return self.StateOn
 
 #def main():
 #    CKT1 = Cooler('1')
