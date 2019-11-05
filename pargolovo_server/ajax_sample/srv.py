@@ -7,12 +7,19 @@ list_Cooler = []
 
 
 async def handle(request):
-    name = request.match_info.get('name',"Anonymous__")
-    text = "Hello, " + name
+    name = request.match_info.get('name')
+    print(name)
+    #text = "Hello, " + name
     for k in request.rel_url.query.keys():
         print(k+"="+request.rel_url.query[k])
     if name == 'index.html':
         return web.FileResponse(name)
+    if name == 'main.js':
+        return web.FileResponse(name)
+    #if name == 'favicon.ico':
+    #    return web.FileResponse('index.html')
+    if name == None:
+        return web.FileResponse('index.html')
     else:
         for t in range(1,13):
             print(t)

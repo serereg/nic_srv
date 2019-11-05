@@ -1,4 +1,5 @@
 
+
 function print_console(text){
 	document.getElementById("status").value = text;
 }
@@ -21,25 +22,35 @@ function aread()
 				
 				try
 				{
-					document.getElementById("pv1").value = pars[0];
-					document.getElementById("pv2").value = pars[1];
-					document.getElementById("pv3").value = pars[2];
-					document.getElementById("pv4").value = pars[3];
-					document.getElementById("pv5").value = pars[4];
-					document.getElementById("pv6").value = pars[5];
-					document.getElementById("pv7").value = pars[6];
-					document.getElementById("pv8").value = pars[7];
-					document.getElementById("pv9").value = pars[8];
-					document.getElementById("pv10").value = pars[9];
-					document.getElementById("pv11").value = pars[10];
-					document.getElementById("pv12").value = pars[11];
-					document.getElementById("pv13").value = pars[12];
+					for (var i = 0; i < 12; i++) {
+						var num = i+1
+						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Задание= "+pars[i+12];
+						if (pars[24+i]=="True")
+						{
+							document.getElementById("pv"+num.toString()).className = "button_is_on";
+						}
+						else
+						{
+							document.getElementById("pv"+num.toString()).className = "button_is_off";
+						}
+					}
 					
 					var index = parseInt(document.getElementById("unitn").value, 10);
-					document.getElementById("writedt").value = pars[2+index]; //request.responseText;
+					document.getElementById("write_sp").value = pars[11+index]; //request.responseText;
+					if (pars[23+index]=="True")
+					{
+						document.getElementById("CmdOn").className = "button_is_on";
+						document.getElementById("CmdOff").className = "button_is_on";
+					}
+					else
+					{
+						document.getElementById("CmdOn").className = "button_is_off";
+						document.getElementById("CmdOff").className = "button_is_off";
+					}
+					
 				}catch(exception)
 				{
-					document.getElementById("writedt").value = "jopa";
+					document.getElementById("write_sp").value = "exception";
 				};
         	}
         	else
@@ -81,31 +92,31 @@ function set_editable(val)
 {
     if (val)
     {
-        document.getElementById("writedt").readOnly = "";
+        document.getElementById("write_sp").readOnly = "";
         document.getElementById("iseditable").value = "1";
         painterror();
     }
     else
     {
-        document.getElementById("writedt").readOnly = "readonly";
+        document.getElementById("write_sp").readOnly = "readonly";
         document.getElementById("iseditable").value = "0";
-        document.getElementById("writedt").className = "monitor";
+        document.getElementById("write_sp").className = "monitor";
     }
 }
 
 function painterror()
 {
-    if (check_real(document.getElementById("writedt").value))
-        document.getElementById("writedt").className = "edit";
+    if (check_real(document.getElementById("write_sp").value))
+        document.getElementById("write_sp").className = "edit";
     else
-        document.getElementById("writedt").className = "error";
+        document.getElementById("write_sp").className = "error";
 }
 
 function keypressfield(key)
 {
     if (key == "Enter")
     {
-        if (check_real(document.getElementById("writedt").value))
+        if (check_real(document.getElementById("write_sp").value))
         {
             awrite();
             set_editable(false);
@@ -126,11 +137,31 @@ function keypressfield(key)
     }
 }
 
+function cmdon()
+{
+    var params = "?cmd"+document.getElementById("unitn").value+"=YOn";
+	var request = new XMLHttpRequest();
+    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+	request.send("");
+}
+
+function cmdoff()
+{
+    var params = "?cmd"+document.getElementById("unitn").value+"=YOff";
+	var request = new XMLHttpRequest();
+    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+	request.setRequestHeader("Pragma", "no-cache");
+	request.setRequestHeader("Cache-Control", "no-cache");
+	request.send("");
+}
+
 function awrite()
 {
     print_console("Запрос инициирован...");
     
-    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("writedt").value;
+    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("write_sp").value;
     
 	//alert(params);
 	
@@ -162,16 +193,16 @@ function setunit(unit)
 {
 	document.getElementById("unitn").value=unit;
 	
-	document.getElementById("writedt").value = "...";
+	document.getElementById("write_sp").value = "...";
 	
 	let i = 1;
 	var uniti = parseInt(unit,10);
 	while (i <= 12) 
 	{ 
 		if(i==uniti)
-			document.getElementById("pv"+i).className = "selected";
+			document.getElementById("pv"+i).style.color = white;//.className = "selected";
 		else
-			document.getElementById("pv"+i).className = "monitor";
+			document.getElementById("pv"+i).style.color = red;//.className = "monitor";
 		i++;
 	}
 }
