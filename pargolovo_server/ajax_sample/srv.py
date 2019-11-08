@@ -39,10 +39,10 @@ async def handle(request):
     #text = "Hello, " + name
     for k in request.rel_url.query.keys():
         print(k+"="+request.rel_url.query[k])
-    if (regexp.search(name)): # == 'main.js' or name == 'CKT.png'
-        return web.FileResponse(name)
-    elif name == None:
+    if name == None:
         return web.FileResponse('index.html')
+    elif (regexp.search(name)): # == 'main.js' or name == 'CKT.png'
+        return web.FileResponse(name)
     else:
         for t in range(1,13):
             print(t)
