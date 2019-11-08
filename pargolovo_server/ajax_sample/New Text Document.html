@@ -1,0 +1,77 @@
+<style>
+.example3 {
+display:inline-block;
+position:relative;
+}
+.example3 .example_text {
+display:block;
+position:absolute;
+left:0;
+bottom:0;
+width:100%;
+box-sizing:border-box;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
+box-sizing: border-box;
+
+color:#fff;
+
+padding:10px;
+background-color:rgba(0,0,0,.3);
+
+}
+.example3 h6 {
+font-family:Arial, Helvetica, sans-serif;
+font-size:18px;
+}
+.example3 span {
+font-size:12px;
+}
+</style>
+
+<div class="example3">
+<img src="CKT.png" class="example_beauty" />
+
+<div class="example_text">
+
+<h6>Я — заголовок</h6>
+
+<span>А я — комментарий к этой прекрасной картинке. Я такой длинный, что занимаю несколько строчек.</span>
+</div>
+
+</div>
+
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>z-index</title>
+  <style>
+   #layer1, #layer2, #layer3, #layer4 {
+    position: relative; /* Относительное позиционирование */
+   } 
+   #layer1, #layer3 {
+    font-size: 50px; /* Размер шрифта в пикселах */
+    color: #000080; /* Синий цвет текста */
+   }
+   #layer2, #layer4 {
+    top: -55px; /* Сдвигаем текст вверх */
+    left: 5px; /* Сдвигаем текст вправо */
+    color: #ffa500; /* Оранжевый цвет текста */
+    font-size:70px;  /* Размер шрифта в пикселах */
+   }
+   #layer1 { z-index: 2; }
+   #layer2 { z-index: 1; }
+   #layer3 { z-index: 3; }
+   #layer4 { z-index: 4; }
+  </style>
+ </head>
+ <body>
+  <p>Слой 1 наверху</p>
+  <div id="layer1">Слой 1</div>
+  <div id="layer2"><img src="CKT.png" class="example_beauty" />Слой 2</div> 
+  <p>Слой 4 наверху</p>
+  <div id="layer3">Слой 3</div>
+  <div id="layer4">Слой 4</div> 
+ </body>
+</html>

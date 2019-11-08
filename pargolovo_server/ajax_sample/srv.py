@@ -1,10 +1,37 @@
 from aiohttp import web
+from loguru import logger
 from Cooler import Cooler
 
-paraml = 'ddd'
+import asyncio
+
+import re
+
+regexp = re.compile(r'\.js|\.png|\.jpg|index\.html')
+
+_opc_clients = set()
+
+# Exschange with opc client
+async def ws_opc_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+    _opc_clients.add(ws)
+    async for msg in ws:
+        logger.info("opc msg {}", msg.data)
+    _opc_clients.discard(ws)
+
+
+async def _simulate_commands(self):
+    import random
+    while True:
+        await asyncio.sleep(5)
+        if not _opc_clients:
+            continue
+        cmd = dict(type="command", action=random.choice(["on", "off", "set"]),
+                   item="node1", value=random.randint(-20, 20))
+        logger.info("sending command {} to {} clients", cmd, len(_opc_clients))
+        await asyncio.gather(*[ws.send_json(cmd) for ws in _opc_clients])
 
 list_Cooler = []
-
 
 async def handle(request):
     name = request.match_info.get('name')
@@ -12,13 +39,9 @@ async def handle(request):
     #text = "Hello, " + name
     for k in request.rel_url.query.keys():
         print(k+"="+request.rel_url.query[k])
-    if name == 'index.html':
+    if (regexp.search(name)): # == 'main.js' or name == 'CKT.png'
         return web.FileResponse(name)
-    if name == 'main.js':
-        return web.FileResponse(name)
-    #if name == 'favicon.ico':
-    #    return web.FileResponse('index.html')
-    if name == None:
+    elif name == None:
         return web.FileResponse('index.html')
     else:
         for t in range(1,13):
@@ -51,6 +74,7 @@ async def ws_browser_handler(self, request):
 app = web.Application()
 app.add_routes([web.get('/', handle),
                 web.get('/{name}',handle)])
+app.router.add_get("/ws/opc", ws_opc_handler) # for client opc exchange
 
 if __name__ == '__main__':
     for i in range(1,16):
