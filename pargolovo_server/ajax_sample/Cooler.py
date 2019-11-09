@@ -20,28 +20,31 @@ class Cooler:
     StateOn = False
     def __init__(self, num):
         self.num = num
-        name = "CKT" + str(num)
-        self.pv = Parameter(name)
-        self.TagControl = 'OPC.' + name + '.Control'
-        self.TagSP = 'OPC.' + name + '.SP'
-        pass
+        self.name = "CKT" + str(num)
+        print(self.name)
+        self.TagControl = 'OPC.' + self.name + '.Control'
+        self.TagYOn = 'Request1.'+'TIC' + str(num) + '_YOn'
+        self.TagYOff = 'Request1.'+'TIC' + str(num) + '_YOff'
+        self.pv = Parameter('Request2.'+'TIC' + str(num) + '_PV')
+        self.TagSP = 'Request3.'+'TIC' + str(num) + '_SP'
     
     def YOn(self):
         print('YOn')
         self.StateOn = True # imitation
-        pass
+        
     def YOff(self):
         print('YOff')
         self.StateOn = False # imitation
-        pass
+
     def SetSP(self, nsp):
         self.sp = nsp
         print('SetSP')
-        pass
+
     def GetPV(self):
-        #print('GetPV')
-        self.pv.Value = self.sp # imitation
+        # print('GetPV')
+        # self.pv.Value = self.sp # imitation
         return self.pv.Value
+        
     def isOn(self):
         return self.StateOn
 

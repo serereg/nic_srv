@@ -24,7 +24,7 @@ function aread()
 				{
 					for (var i = 0; i < 12; i++) {
 						var num = i+1
-						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Задание= "+pars[i+12];
+						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Зд= "+pars[i+12];
 						if (pars[24+i]=="True")
 						{
 							document.getElementById("pv"+num.toString()).className = "button_is_on";

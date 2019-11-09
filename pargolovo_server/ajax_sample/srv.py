@@ -4,19 +4,29 @@ from Cooler import Cooler
 
 import asyncio
 
+import json
+
 import re
 
 regexp = re.compile(r'\.js|\.png|\.jpg|index\.html')
 
 _opc_clients = set()
+list_Cooler = []
+num_ckt = 12
 
-# Exschange with opc client
+# Exchange with opc client
 async def ws_opc_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
     _opc_clients.add(ws)
     async for msg in ws:
-        logger.info("opc msg {}", msg.data)
+        #logger.info("opc msg {}", msg.data)
+        print(msg.data)
+        ckt_data = json.loads(msg.data)
+        for k in range(1,num_ckt+1):
+            if (ckt_data['item']) == 'CKT'+str(k):
+                list_Cooler[k].pv.Value = ckt_data['temperature']
+                
     _opc_clients.discard(ws)
 
 
@@ -31,7 +41,6 @@ async def _simulate_commands(self):
         logger.info("sending command {} to {} clients", cmd, len(_opc_clients))
         await asyncio.gather(*[ws.send_json(cmd) for ws in _opc_clients])
 
-list_Cooler = []
 
 async def handle(request):
     name = request.match_info.get('name')
@@ -44,7 +53,7 @@ async def handle(request):
     elif (regexp.search(name)): # == 'main.js' or name == 'CKT.png'
         return web.FileResponse(name)
     else:
-        for t in range(1,13):
+        for t in range(1,num_ckt+1):
             print(t)
             cur_cooler = list_Cooler[t]
             if ('val'+str(t)) in request.rel_url.query.keys():
@@ -62,7 +71,7 @@ async def handle(request):
                 strpv = ""
                 strsp = ""
                 strstate = ""
-                for k in range(1,13):
+                for k in range(1,num_ckt+1):
                     strpv = strpv+str(list_Cooler[k].GetPV())+";"
                     strsp = strsp+str(list_Cooler[k].sp)+";"
                     strstate = strstate+str(list_Cooler[k].isOn())+";"
@@ -77,7 +86,7 @@ app.add_routes([web.get('/', handle),
 app.router.add_get("/ws/opc", ws_opc_handler) # for client opc exchange
 
 if __name__ == '__main__':
-    for i in range(1,16):
+    for i in range(1,num_ckt+1+1):
         list_Cooler.append(Cooler(i))
 
 
