@@ -27,7 +27,9 @@ class Cooler:
         self.TagYOff = 'Request1.'+'TIC' + str(num) + '_YOff'
         self.pv = Parameter('Request2.'+'TIC' + str(num) + '_PV')
         self.TagSP = 'Request3.'+'TIC' + str(num) + '_SP'
-    
+        self.TagState = 'Request3.'+'TIC' + str(num) + '_STATE'
+        self.State = 0
+        self.Alarm = False
     def YOn(self):
         print('YOn')
         self.StateOn = True # imitation
