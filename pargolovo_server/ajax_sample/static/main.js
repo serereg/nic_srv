@@ -9,7 +9,7 @@ function aread()
     print_console("Запрос инициирован...");
     
     var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm',true);
+    request.open('GET',document.location.origin+'/status',true);
     request.addEventListener('readystatechange', function() {     
         
         if(request.readyState == 4)
@@ -141,7 +141,7 @@ function cmdon()
 {
     var params = "?cmd"+document.getElementById("unitn").value+"=YOn";
 	var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+    request.open('GET',document.location.origin+'/command'+params,true);
 	request.setRequestHeader("Pragma", "no-cache");
 	request.setRequestHeader("Cache-Control", "no-cache");
 	request.send("");
@@ -151,7 +151,7 @@ function cmdoff()
 {
     var params = "?cmd"+document.getElementById("unitn").value+"=YOff";
 	var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+    request.open('GET',document.location.origin+'/command'+params,true);
 	request.setRequestHeader("Pragma", "no-cache");
 	request.setRequestHeader("Cache-Control", "no-cache");
 	request.send("");
@@ -166,7 +166,7 @@ function awrite()
 	//alert(params);
 	
     var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/ahandler.htm'+params,true);
+    request.open('GET',document.location.origin+'/command'+params,true);
     request.addEventListener('readystatechange', function() {   	        
         
         if(request.readyState == 4)
