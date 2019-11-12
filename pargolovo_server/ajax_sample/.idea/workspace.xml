@@ -2,19 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9e5516f-8b5a-40cd-b151-a528f46b800f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../../cl/pargolovo_client/Cooler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../.idea/srv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../cl/pargolovo_client/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../cl/pargolovo_client/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ajax_sample.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ajax_sample.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CKT.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ahandler.htm" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cl.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/srv.py" beforeDir="false" afterPath="$PROJECT_DIR$/srv.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +38,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.opc_side_server">
+  <component name="RunManager" selected="Python.__main__">
+    <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="pargolovo_client" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../cl/pargolovo_client" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../../cl/pargolovo_client/__main__.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="opc_side_server" type="PythonConfigurationType" factoryName="Python">
       <module name="pargolovo_client" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -95,9 +105,11 @@
     <list>
       <item itemvalue="Python.opc_side_server" />
       <item itemvalue="Python.srv" />
+      <item itemvalue="Python.__main__" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.srv" />
       </list>
     </recent_temporary>
