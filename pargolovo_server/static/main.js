@@ -16,7 +16,7 @@ function aread()
         {
         	if(request.status==200)
         	{
-	            print_console("Обмен завершен успешно.");
+	            print_console("Обмен с веб-сервером завершен успешно.");
 				
 				var pars = request.responseText.split(";");
 				
@@ -24,14 +24,17 @@ function aread()
 				{
 					for (var i = 0; i < 12; i++) {
 						var num = i+1
-						document.getElementById("pv"+num.toString()).value = "T= "+pars[i]+" С;    Зд= "+pars[i+12];
+						document.getElementById("pv"+num.toString()).value = pars[i]+" С";
+						document.getElementById("sp"+num.toString()).value = pars[i+12]+" С";
 						if (pars[24+i]=="True")
 						{
-							document.getElementById("pv"+num.toString()).className = "button_is_on";
+							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
 						}
 						else
 						{
-							document.getElementById("pv"+num.toString()).className = "button_is_off";
+							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-gray";
 						}
 					}
 					
@@ -39,13 +42,13 @@ function aread()
 					document.getElementById("write_sp").value = pars[11+index]; //request.responseText;
 					if (pars[23+index]=="True")
 					{
-						document.getElementById("CmdOn").className = "button_is_on";
-						document.getElementById("CmdOff").className = "button_is_on";
+						document.getElementById("CmdOn").className = "w3-button w3-green";
+						document.getElementById("CmdOff").className = "w3-button w3-green";
 					}
 					else
 					{
-						document.getElementById("CmdOn").className = "button_is_off";
-						document.getElementById("CmdOff").className = "button_is_off";
+						document.getElementById("CmdOn").className = "w3-button w3-black";
+						document.getElementById("CmdOff").className = "w3-button w3-black";
 					}
 					
 				}catch(exception)

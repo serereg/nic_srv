@@ -2,6 +2,7 @@ from aiohttp import web
 from loguru import logger
 from Cooler import Cooler
 
+print(Cooler)
 import asyncio
 
 import json
