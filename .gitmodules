@@ -1,0 +1,3 @@
+[submodule "pargolovo_server/Cooler"]
+	path = pargolovo_server/Cooler
+	url = https://github.com/serereg/Cooler.git
