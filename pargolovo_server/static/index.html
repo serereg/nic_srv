@@ -26,7 +26,7 @@
   <div class="w3-quarter">
     <div class="w3-bar w3-xlarge">
       <a href="#" class="w3-bar-item w3-button w3-left"><i class="fa fa-search"></i></a>
-      <a href="#" class="w3-bar-item w3-button w3-right"><img class="w3-hide-small w3-circle" src="img_avtar.jpg" style="height:40px;"></a>
+      <a href="#" class="w3-bar-item w3-button w3-right"><img class="w3-hide-small w3-circle" src="static/img_avtar.png" style="height:40px;"></a>
     </div>
 
   </div>
@@ -37,7 +37,7 @@
 	<!-- Состояние соединения -->
 	<input id="status" class="w3-input w3-border w3-round-large" value="status"">
 	<input id="busyTank" class="w3-check" type="checkbox" checked="checked">
-	<label>Отобразить ЦКТ в работе</label>
+	<label>Отобразить ЦКТ, находящиеся в работе</label>
 </div>
 
 <div class="w3-row-padding w3-theme">
@@ -407,10 +407,11 @@
 </div>
 
 <form class="w3-panel w3-card-4">
-	<h2>Input Form</h2>
-	Введите задание для поддержание температуры в CKT<input id="unitn" class="w3-tag w3-yellow" value="1"/>:
+	<h2>Ввод задания</h2>
+	<p>Задание для поддержание температуры в CKT.</p>
+	<p>ЦКТ №<input id="unitn" class="w3-tag w3-yellow" value="1"/>:</p>
 	<br>
-	<input id="write_sp" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor" readonly="readonly">
+	<input id="write_sp" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="w3-input w3-border w3-round-large" readonly="readonly">
 	<br>
 	<button id="CmdOn" onclick="cmdon()">Вкл</button>
 	<button id="CmdOff" onclick="cmdoff()">Откл</button>
@@ -419,7 +420,7 @@
 
 </div>
 <div class="w3-container w3-theme-d4">
-<p class="w3-large">Europe Italy</p>
+<p class="w3-large">www.brewale.ru, Парголово, СПб</p>
 </div>
 
 
