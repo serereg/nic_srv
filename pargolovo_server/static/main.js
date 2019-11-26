@@ -34,7 +34,7 @@ function aread()
 						else
 						{
 							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
-							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-gray";
+							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
 						}
 					}
 					
@@ -207,5 +207,23 @@ function setunit(unit)
 		else
 			document.getElementById("pv"+i).style.color = red;//.className = "monitor";
 		i++;
+	}
+}
+
+function checkBoxEvent() {
+	if (document.getElementById('busyTank').checked)
+	{
+
+		Ach = document.getElementsByClassName("w3-light-grey");
+		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'none';
+		Ach = document.getElementsByClassName("w3-green");
+		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
+	} else {
+
+		Ach1 = document.getElementsByClassName("w3-light-grey");
+		for (i = 0; i < Ach1.length; i++) Ach1[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
+
+		Ach = document.getElementsByClassName("w3-green");
+		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
 	}
 }

@@ -35,8 +35,8 @@
 <div class="w3-container w3-padding-32 w3-theme-d1">
 	<h1>Емкости ЦКТ для пива</h1>
 	<!-- Состояние соединения -->
-	<input id="status" class="w3-input w3-border w3-round-large" value="status"">
-	<input id="busyTank" class="w3-check" type="checkbox" checked="checked">
+	<input id="status" class="w3-input w3-border w3-round-large" value="status">
+	<input id="busyTank" onchange="checkBoxEvent()" class="w3-check" type="checkbox">
 	<label>Отобразить ЦКТ, находящиеся в работе</label>
 </div>
 
