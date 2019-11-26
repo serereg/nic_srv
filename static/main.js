@@ -24,8 +24,10 @@ function aread()
 				{
 					for (var i = 0; i < 12; i++) {
 						var num = i+1
-						document.getElementById("pv"+num.toString()).value = pars[i]+" °С";
-						document.getElementById("sp"+num.toString()).value = pars[i+12]+" °С";
+						var k = parseFloat(pars[i])
+						var k2 = parseFloat(pars[i+12])
+						document.getElementById("pv"+num.toString()).value = k.toFixed(2);
+						document.getElementById("sp"+num.toString()).value = k2.toFixed(2);
 						if (pars[24+i]=="True")
 						{
 							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
