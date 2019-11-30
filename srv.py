@@ -18,7 +18,7 @@ class Server:
         self._opc_clients = set()
         self.list_Cooler = []
         self.num_ckt = 12
-        for i in range(1, self.num_ckt + 1 + 1):
+        for i in range(0, self.num_ckt + 1 + 1):
             self.list_Cooler.append(Cooler(i))
         app.add_routes([web.get('/', self.handle),
                         web.get('/{name}', self.handle)])
@@ -45,6 +45,7 @@ class Server:
         if not self._opc_clients:
             return
         data["type"] = "command"
+        print(data)
         coros = [ws.send_json(data) for ws in self._opc_clients]
         await asyncio.gather(*coros, return_exceptions=True)
 

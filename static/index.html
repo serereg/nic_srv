@@ -415,22 +415,25 @@
 	</div>
 </div>
 
-<form class="w3-panel w3-card-4">
+<div class="w3-third w3-section w3-container w3-card-4 w3-light-grey">
 	<h2>Ввод задания</h2>
 	<p>Задание для поддержание температуры в CKT.</p>
-	<p>ЦКТ №<input id="unitn" class="w3-tag w3-yellow" value="1"/>:</p>
+	<p>ЦКТ №<input id="unitn" value="1"/>:</p>
 	<br>
-	<input id="write_sp" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="w3-input w3-border w3-round-large" readonly="readonly">
+	<input id="write_sp" value="...." onclick="dbclickfield()" onkeyup="keypressfield(event.key)" class="monitor">
+	
 	<br>
 	<button id="CmdOn" onclick="cmdon()">Вкл</button>
 	<button id="CmdOff" onclick="cmdoff()">Откл</button>
 	<input id="iseditable" type="hidden" value="0" />
-</form>
+</div>
+
 
 </div>
 <div class="w3-container w3-theme-d4">
 <p class="w3-large">www.brewale.ru, Парголово, СПб</p>
 </div>
+
 
 
 </body>
