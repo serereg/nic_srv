@@ -38,6 +38,8 @@ class Server:
                 for k in range(1, self.num_ckt+1):
                     if (ckt_data['item']) == 'CKT'+str(k):
                         self.list_Cooler[k].pv.Value = ckt_data['temperature']
+                        self.list_Cooler[k].sp = ckt_data['sp']
+                        self.list_Cooler[k].StateOn = ckt_data['is_on']
         finally:
             self._opc_clients.discard(ws)
 

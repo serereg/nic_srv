@@ -30,13 +30,17 @@ class Cooler:
         self.TagState = 'Request3.'+'TIC' + str(num) + '_STATE'
         self.State = 0
         self.Alarm = False
+        self.CmdOn = False
+        self.CmdOff = False
     def YOn(self):
         print('YOn')
-        self.StateOn = True # imitation
+        self.CmdOn = True
+        self.CmdOff = False
         
     def YOff(self):
         print('YOff')
-        self.StateOn = False # imitation
+        self.CmdOn = False
+        self.CmdOff = True
 
     def SetSP(self, nsp):
         self.sp = nsp
