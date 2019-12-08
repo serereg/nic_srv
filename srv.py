@@ -25,6 +25,7 @@ class Server:
         app.router.add_get("/ws/opc", self.ws_opc_handler)  # for client opc exchange
         app.router.add_static("/static", "static")
 
+        self.plc_link_wdt = 0
     # Exchange with opc client
     async def ws_opc_handler(self, request):
         ws = web.WebSocketResponse()
@@ -35,11 +36,14 @@ class Server:
                 #logger.info("opc msg {}", msg.data)
                 print(msg.data)
                 ckt_data = json.loads(msg.data)
+                self.plc_link_wdt = ckt_data['wdt']
                 for k in range(1, self.num_ckt+1):
                     if (ckt_data['item']) == 'CKT'+str(k):
                         self.list_Cooler[k].pv.Value = ckt_data['temperature']
                         self.list_Cooler[k].sp = ckt_data['sp']
-                        self.list_Cooler[k].StateOn = ckt_data['is_on']
+                        self.list_Cooler[k].State = ckt_data['state']
+                        self.list_Cooler[k].update_state_on()
+                        #self.list_Cooler[k].StateOn = ckt_data['is_on']
         finally:
             self._opc_clients.discard(ws)
 
@@ -101,12 +105,17 @@ class Server:
                 elif len(request.rel_url.query.keys())==0:
                     strpv = ""
                     strsp = ""
-                    strstate = ""
+                    stron = ""
+                    strflt = ""
+                    stralarm = ""
                     for k in range(1, self.num_ckt+1):
                         strpv = strpv+str(self.list_Cooler[k].GetPV())+";"
                         strsp = strsp+str(self.list_Cooler[k].sp)+";"
-                        strstate = strstate+str(self.list_Cooler[k].isOn())+";"
-                    return web.Response(text=strpv+strsp+strstate)
+                        stron = stron+str(self.list_Cooler[k].isOn())+";"
+                        strflt = strflt+str(self.list_Cooler[k].isFault())+";"
+                        stralarm = stralarm+str(self.list_Cooler[k].isAlarm())+";"
+                    strwdt = str(self.plc_link_wdt)+";"
+                    return web.Response(text=strpv+strsp+stron+strflt+stralarm+strwdt)
 
 
 if __name__ == '__main__':

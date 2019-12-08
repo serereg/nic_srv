@@ -16,33 +16,59 @@ function aread()
         {
         	if(request.status==200)
         	{
-	            print_console("Обмен с веб-сервером завершен успешно.");
 				
 				var pars = request.responseText.split(";");
 				
 				try
 				{
+					let pv_html = new Array(12)
+					let sp_html = new Array(12)
+					let is_reg_on_html = new Array(12)
+					let is_pv_fault_html = new Array(12)
+					let is_reg_alarm_html = new Array(12)
+					let plc_client_wdt = 0
+					// parsing
+					for (var i = 0; i < 12; i++) {
+						pv_html[i] = parseFloat(pars[i])
+						sp_html[i] = parseFloat(pars[i+12])
+						is_reg_on_html[i] = pars[i+12*2]
+						is_pv_fault_html[i] = pars[i+12*3]
+						is_reg_alarm_html[i] = pars[i+12*4]
+					}
+					plc_client_wdt = pars[12*5]
+					
 					for (var i = 0; i < 12; i++) {
 						var num = i+1
-						var k = parseFloat(pars[i])
-						var k2 = parseFloat(pars[i+12])
-						document.getElementById("pv"+num.toString()).value = k.toFixed(2);
-						document.getElementById("sp"+num.toString()).value = k2.toFixed(2);
-						if (pars[24+i]=="True")
+						document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
+						document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
+						if (is_reg_on_html[i]=="True")
 						{
-							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
 							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
 						}
 						else
 						{
-							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
 							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
 						}
+						if (is_pv_fault_html[i]=="True")
+						{
+							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
+						}
+						else
+						{
+							if (is_reg_alarm_html[i]=="True")
+							{
+								document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
+							}
+							else
+							{
+								document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+							}
+						}
 					}
-					
-					var index = parseInt(document.getElementById("unitn").value, 10);
-					document.getElementById("write_sp").value = pars[11+index]; //request.responseText;
-					if (pars[23+index]=="True")
+					// TODO: tempereture fault analyse
+					var index = parseInt(document.getElementById("unitn").value, 10)-1;
+					document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+					if (is_reg_on_html[index]=="True")
 					{
 						document.getElementById("CmdOn").className = "w3-button w3-green";
 						document.getElementById("CmdOff").className = "w3-button w3-green";
@@ -53,6 +79,7 @@ function aread()
 						document.getElementById("CmdOff").className = "w3-button w3-black";
 					}
 					
+					print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
 				}catch(exception)
 				{
 					document.getElementById("write_sp").value = "exception";

@@ -32,6 +32,10 @@ class Cooler:
         self.Alarm = False
         self.CmdOn = False
         self.CmdOff = False
+        
+    def is_set(self, x, n):
+        return x & 1 << n != 0
+        
     def YOn(self):
         print('YOn')
         self.CmdOn = True
@@ -54,6 +58,17 @@ class Cooler:
     def isOn(self):
         return self.StateOn
 
+    def update_state_on(self):
+        self.StateOn = self.is_set(self.State,0)
+
+    def isFault(self):
+        self.pv.Fault = self.is_set(self.State,1)
+        return self.pv.Fault
+
+    def isAlarm(self):
+        self.Alarm = self.is_set(self.State,2)
+        return self.Alarm
+
 #def main():
 #    CKT1 = Cooler('1')
 #    print(CKT1.PV.Value)
@@ -61,4 +76,5 @@ class Cooler:
 #main()
 
 if __name__ == '__main__':
+    C1 = Cooler(1)
     pass
