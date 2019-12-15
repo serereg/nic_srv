@@ -34,7 +34,11 @@ class Cooler:
         self.CmdOff = False
         
     def is_set(self, x, n):
-        return x & 1 << n != 0
+        try:
+            r = (int(x) & 1 << int(n)) != 0
+        except Exception:
+            r = True
+        return r
         
     def YOn(self):
         print('YOn')
