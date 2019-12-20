@@ -21,6 +21,7 @@ class Server:
         for i in range(0, self.num_ckt + 1 + 1):
             self.list_Cooler.append(Cooler(i))
         app.add_routes([web.get('/', self.handle),
+                        web.post('/login', self.do_login),
                         web.get('/{name}', self.handle)])
         app.router.add_get("/ws/opc", self.ws_opc_handler)  # for client opc exchange
         app.router.add_static("/static", "static")
@@ -65,7 +66,15 @@ class Server:
     #                    item="node1", value=random.randint(-20, 20))
     #         logger.info("sending command {} to {} clients", cmd, len(_opc_clients))
     #         await asyncio.gather(*[ws.send_json(cmd) for ws in _opc_clients])
-
+    async def do_login(self, request):
+        data = await request.post()
+        login = data['login']
+        password = data['password']
+        print(data)
+        if login == "Igor" and password == "":
+            return web.FileResponse('static/index_control.html')
+        else:
+            return web.Response(text="log out")
 
     async def handle(self, request):
         name = request.match_info.get('name')
