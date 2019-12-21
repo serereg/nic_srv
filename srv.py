@@ -83,6 +83,17 @@ class Server:
         #     print(k+"="+request.rel_url.query[k])
         if name is None:
             return web.FileResponse('static/index.html')
+        elif name == 'description':
+            num = request.rel_url.query['cur_ckt']
+            description = request.rel_url.query['ckt_description']
+            print(num, description)
+            num = int(num)
+            if isinstance(num, int):
+                if num>=1 and num<=12:
+                    f = open("static/Description_CKT"+str(num)+".txt", "w")
+                    f.write(description)
+                    await f.close()
+            return web.FileResponse('static/index_control.html')
         else:
             for t in range(1, self.num_ckt+1):
                 print(t)
