@@ -92,7 +92,7 @@ class Server:
                 if num>=1 and num<=12:
                     f = open("static/Description_CKT"+str(num)+".txt", "w")
                     f.write(description)
-                    await f.close()
+                    f.close()
             return web.FileResponse('static/index_control.html')
         else:
             for t in range(1, self.num_ckt+1):
