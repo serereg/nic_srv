@@ -105,6 +105,7 @@ function readval_t()
         aread();
     setTimeout(readval_t, 1000);
 
+	showBusyTank();
 }
 
 
@@ -242,17 +243,54 @@ function setunit(unit)
 function checkBoxEvent() {
 	if (document.getElementById('busyTank').checked)
 	{
+		setCookie("show_busy_tank","true",10);
+	} else 
+	{
+		setCookie("show_busy_tank","false",10);
+	}
+}
 
+
+function showBusyTank()
+{
+	let show = getCookie("show_busy_tank")
+	if (show == "true")
+	{
+		document.getElementById('busyTank').checked = true;
 		Ach = document.getElementsByClassName("w3-light-grey");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'none';
 		Ach = document.getElementsByClassName("w3-green");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
-	} else {
-
+	} else {	
+		document.getElementById('busyTank').checked = false;	
 		Ach1 = document.getElementsByClassName("w3-light-grey");
 		for (i = 0; i < Ach1.length; i++) Ach1[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
 
 		Ach = document.getElementsByClassName("w3-green");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
 	}
+}
+
+//
+function setCookie(cname, cvalue, exdays) {
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	var expires = "expires="+ d.toUTCString();
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var decodedCookie = decodeURIComponent(document.cookie);
+	var ca = decodedCookie.split(';');
+	for(var i = 0; i <ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) == ' ') {
+			c = c.substring(1);
+		}
+		if (c.indexOf(name) == 0) {
+			return c.substring(name.length, c.length);
+		}
+	}
+	return "";
 }
