@@ -85,13 +85,13 @@ class Server:
             return web.FileResponse('static/index.html')
         elif name == 'description':
             num = request.rel_url.query['cur_ckt']
-            description = request.rel_url.query['ckt_description']
-            #print(num, description)
+            description = request.rel_url.query['ckt_description'].encode("UTF-8")
+            print(num, description.decode("UTF-8"))
             num = int(num)
             if isinstance(num, int):
                 if num>=1 and num<=12:
-                    f = open("static/Description_CKT"+str(num)+".txt", "w")
-                    f.write(description)
+                    f = open("static/Description_CKT"+str(num)+".txt", "w",encoding='utf8',errors="ignore")
+                    f.write(description.decode("UTF-8"))
                     f.close()
             return web.FileResponse('static/index_control.html')
         else:
