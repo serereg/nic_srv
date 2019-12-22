@@ -86,7 +86,7 @@ class Server:
         elif name == 'description':
             num = request.rel_url.query['cur_ckt']
             description = request.rel_url.query['ckt_description'].encode("UTF-8")
-            print(num, description.decode("UTF-8"))
+            #print(num, description.decode("UTF-8"))
             num = int(num)
             if isinstance(num, int):
                 if num>=1 and num<=12:
