@@ -34,11 +34,7 @@ class Cooler:
         self.CmdOff = False
         
     def is_set(self, x, n):
-        try:
-            r = (int(x) & 1 << int(n)) != 0
-        except Exception:
-            r = True
-        return r
+        return x & 1 << n != 0
         
     def YOn(self):
         print('YOn')
@@ -66,7 +62,7 @@ class Cooler:
         self.StateOn = self.is_set(self.State,0)
 
     def isFault(self):
-        self.pv.Fault = False # self.is_set(self.State,1)
+        self.pv.Fault = self.is_set(self.State,1)
         return self.pv.Fault
 
     def isAlarm(self):
