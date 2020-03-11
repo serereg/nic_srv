@@ -175,6 +175,7 @@ function cmdon()
     var params = "?cmd"+document.getElementById("unitn").value+"=YOn";
 	var request = new XMLHttpRequest();
     request.open('GET',document.location.origin+'/command'+params,true);
+	//alert(document.location.origin+'/command'+params);
 	request.setRequestHeader("Pragma", "no-cache");
 	request.setRequestHeader("Cache-Control", "no-cache");
 	request.send("");
