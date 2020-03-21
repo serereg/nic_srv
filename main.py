@@ -1,25 +1,25 @@
 from aiohttp import web
-from loguru import logger
-from Cooler import Cooler
-
-print(Cooler)
 import asyncio
-
 import json
-
+import logging
 import re
 
+from database.client import DBClient
+from database.fixtures import FIXTURES
+from database.models import db
+from redis.client import RedisClient
+from web.routes import ROUTES
+
 #regexp = re.compile(r'\.js|\.png|\.jpg|index\.html')
-logger.info("test")
 
 class Server:
 
     def __init__(self, app):
         self._opc_clients = set()
-        self.list_Cooler = []
+        self.list_cooler = []
         self.num_ckt = 12
         for i in range(0, self.num_ckt + 1 + 1):
-            self.list_Cooler.append(Cooler(i))
+            self.list_cooler.append(cooler(i))
         app.add_routes([web.get('/', self.handle),
                         web.get('/{name}', self.handle)])
         app.router.add_get("/ws/opc", self.ws_opc_handler)  # for client opc exchange
@@ -39,11 +39,11 @@ class Server:
                 self.plc_link_wdt = ckt_data['wdt']
                 for k in range(1, self.num_ckt+1):
                     if (ckt_data['item']) == 'CKT'+str(k):
-                        self.list_Cooler[k].pv.Value = ckt_data['temperature']
-                        self.list_Cooler[k].sp = ckt_data['sp']
-                        self.list_Cooler[k].State = ckt_data['state']
-                        self.list_Cooler[k].update_state_on()
-                        #self.list_Cooler[k].StateOn = ckt_data['is_on']
+                        self.list_cooler[k].pv.Value = ckt_data['temperature']
+                        self.list_cooler[k].sp = ckt_data['sp']
+                        self.list_cooler[k].State = ckt_data['state']
+                        self.list_cooler[k].update_state_on()
+                        #self.list_cooler[k].StateOn = ckt_data['is_on']
         finally:
             self._opc_clients.discard(ws)
 
@@ -77,7 +77,7 @@ class Server:
         else:
             for t in range(1, self.num_ckt+1):
                 print(t)
-                cur_cooler = self.list_Cooler[t]
+                cur_cooler = self.list_cooler[t]
                 if ('val'+str(t)) in request.rel_url.query.keys():
                     cur_cooler.SetSP(request.rel_url.query['val'+ str(t)])
                     print(str(t)+"/"+cur_cooler.sp)
@@ -109,17 +109,41 @@ class Server:
                     strflt = ""
                     stralarm = ""
                     for k in range(1, self.num_ckt+1):
-                        strpv = strpv+str(self.list_Cooler[k].GetPV())+";"
-                        strsp = strsp+str(self.list_Cooler[k].sp)+";"
-                        stron = stron+str(self.list_Cooler[k].isOn())+";"
-                        strflt = strflt+str(self.list_Cooler[k].isFault())+";"
-                        stralarm = stralarm+str(self.list_Cooler[k].isAlarm())+";"
+                        strpv = strpv+str(self.list_cooler[k].GetPV())+";"
+                        strsp = strsp+str(self.list_cooler[k].sp)+";"
+                        stron = stron+str(self.list_cooler[k].isOn())+";"
+                        strflt = strflt+str(self.list_cooler[k].isFault())+";"
+                        stralarm = stralarm+str(self.list_cooler[k].isAlarm())+";"
                     strwdt = str(self.plc_link_wdt)+";"
                     return web.Response(text=strpv+strsp+stron+strflt+stralarm+strwdt)
 
 
-if __name__ == '__main__':
-    app = web.Application()
-    server = Server(app)
-    web.run_app(app)
+async def db_connect(dsn, db):
+    client = DBClient(dsn=dsn, db=db)
+    await client.connect()
+    await client.add_fixtures(FIXTURES)
+    return client
 
+
+async def redis_connect(host, port):
+    client = RedisClient(hots=host, port=port)
+    await client.connect()
+    return client
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    app = web.Application()
+
+    loop = asyncio.get_event_loop()
+    db_client = loop.run_until_complete(db_connect("sqlite:///db.sqlite3", db))
+    redis_client = loop.run_until_complete(redis_connect("localhost", 5679))
+
+    app["redis"] = redis_client
+    app["database"] = db_client
+
+    for path, method, view in ROUTES:
+        app.router.add_route(method, path, view)
+    app.router.add_static("/static", "static")
+
+    web.run_app(app)

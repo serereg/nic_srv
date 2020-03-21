@@ -1,4 +1,3 @@
-
 class Parameter:
     Value = 0
     Fault = False
