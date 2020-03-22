@@ -1,1 +1,1 @@
-from .Cooler import *
+from .cooler import *

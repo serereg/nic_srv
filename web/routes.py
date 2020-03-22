@@ -1,8 +1,8 @@
-from .views import CoolerStateView, OPCView
+from .views import IndexView, CoolerStateView, OPCView
 
 
 ROUTES = (
-    ("/", "*", IndexView)
+    ("/", "*", IndexView),
     ("/{name}", "*", CoolerStateView),
     ("/ws/opc", "*", OPCView),
 )
