@@ -30,11 +30,15 @@ class DBClient:
         for fixture in fixtures:
             try:
                 logging.debug('fixtures')
-                fixture["model"].create(**fixture["fields"])
+                clr = Cooler()
+                clr.name = fixture["fields"]["name"]
+                clr.description = fixture["fields"]["description"]
+                self.session.add(clr)
+                logging.debug('commit')
+                self.session.commit()
             except:
                 pass
-        logging.debug('ok')
-        self.session.commit()
+        
 
     def create_cooler(self, name, description=None):
         return Cooler.create(name=name, description=description)
