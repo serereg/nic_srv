@@ -17,8 +17,101 @@ function aread()
         	if(request.status==200)
         	{
 				
-				var pars = request.responseText.split(";");
+				// var pars = request.responseText.split(";");
 				
+				var ts = {
+				 		"CKT":[
+				 			{
+				 				"pv": 10.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 20.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 30.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 40.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			},
+				 			{
+				 				"pv": 0.0, 
+				 				"sp": 0.0, 
+				 				"is_reg_on":false, 
+				 				"is_pv_fault":false, 
+				 				"is_reg_alarm":false
+				 			}
+				 		]
+				 	}
+				test_request = JSON.stringify(ts)
+				
+				//var pars = JSON.parse(request.responseTex)
+				var pars = JSON.parse(test_request);
+
 				try
 				{
 					let pv_html = new Array(12)
@@ -29,13 +122,13 @@ function aread()
 					let plc_client_wdt = 0
 					// parsing
 					for (var i = 0; i < 12; i++) {
-						pv_html[i] = parseFloat(pars[i])
-						sp_html[i] = parseFloat(pars[i+12])
-						is_reg_on_html[i] = pars[i+12*2]
-						is_pv_fault_html[i] = pars[i+12*3]
-						is_reg_alarm_html[i] = pars[i+12*4]
+						pv_html[i] = parseFloat(pars.CKT[i].pv)
+						sp_html[i] = 11//parseFloat(pars.CKT[i].sp)
+						is_reg_on_html[i] = 0//pars.CKT[i].is_reg_on
+						is_pv_fault_html[i] = 0//pars.CKT[i].is_pv_fault
+						is_reg_alarm_html[i] = 0//pars.CKT[i].is_reg_alarm
 					}
-					plc_client_wdt = pars[12*5]
+					// plc_client_wdt = pars[12*5]
 					
 					for (var i = 0; i < 12; i++) {
 						var num = i+1

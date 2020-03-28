@@ -10,7 +10,7 @@ from database.models import db
 from redis.client import RedisClient
 from web.routes import ROUTES
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logging.debug("Informational message")
 #regexp = re.compile(r'\.js|\.png|\.jpg|index\.html')
 
@@ -18,10 +18,10 @@ class Server:
 
     def __init__(self, app):
         self._opc_clients = set()
-        self.list_cooler = []
-        self.num_ckt = 12
-        for i in range(0, self.num_ckt + 1 + 1):
-            self.list_cooler.append(Cooler(i))
+        # self.list_cooler = []
+        # self.num_ckt = 12
+        # for i in range(0, self.num_ckt + 1 + 1):
+        #     self.list_cooler.append(Cooler(i))
         # app.add_routes([web.get('/', self.handle),
         #                 web.get('/{name}', self.handle)])
         # app.router.add_get("/ws/opc", self.ws_opc_handler)  # for client opc exchange

@@ -1,6 +1,6 @@
-import datetime
-
 import asyncio_redis
+import logging
+import datetime
 
 
 class RedisClient:
@@ -41,9 +41,10 @@ class RedisClient:
             "timestamp": timestamp,
         }
         if cooler_id in self.data:
-            self.data[cooler_id] = [data] 
-        else:
             self.data[cooler_id].append(data)
+        else:
+            self.data[cooler_id] = [data] 
+        logging.info(self.data[cooler_id][-1]["data"])
 
     async def get_cooler_state(self, cooler_id):
         if cooler_id in self.data:

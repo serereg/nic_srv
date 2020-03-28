@@ -22,7 +22,6 @@ class DBClient:
         DBSession.bind = engine
         self.session = DBSession()
 
-
     def close(self):
         self.db.pop_bind().close()
 
@@ -30,16 +29,15 @@ class DBClient:
         for fixture in fixtures:
             try:
                 logging.debug('fixtures')
-                clr = Cooler()
-                clr.name = fixture["fields"]["name"]
-                clr.description = fixture["fields"]["description"]
-                self.session.add(clr)
-                logging.debug('commit')
-                self.session.commit()
+                # clr = Cooler()
+                # clr.name = fixture["fields"]["name"]
+                # clr.description = fixture["fields"]["description"]
+                # self.session.add(clr)
+                # logging.debug('commit')
+                # self.session.commit()
             except:
                 pass
         
-
     def create_cooler(self, name, description=None):
         return Cooler.create(name=name, description=description)
 
@@ -49,4 +47,6 @@ class DBClient:
             condition = condition and Cooler.id == id
         if name is not None:
             condition = condition and Cooler.name == name
-        return self.session.query(Cooler).first()
+        logging.info(name)
+        return self.session.query(Cooler).filter(Cooler.name == name).first()
+        # return self.session.query(Cooler).first()

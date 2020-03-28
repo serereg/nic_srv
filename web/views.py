@@ -1,4 +1,5 @@
 from aiohttp import web
+import json
 import logging
 
 class OPCView(web.View):
@@ -12,10 +13,10 @@ class OPCView(web.View):
             data = json.loads(message.data)
             cooler = db_client.get_cooler(name=data["item"])
 
-            redis_client.set_cooler_state(
-                cooler_id=cooler.id,
+            await redis_client.set_cooler_state(
+                cooler_id=int(cooler.id),
                 temperature=data["temperature"],
-                set_point=data["sp"],
+                set_point=data["set_point"],
                 state=data["state"],
             )
 
@@ -27,16 +28,19 @@ class IndexView(web.View):
 
 class CoolerStateView(web.View):
     async def get(self):
-        db_client = self.request.app["database"]
-        redis_client = self.request.app["redis"]
+        try:
+            db_client = self.request.app["database"]
+            redis_client = self.request.app["redis"]
 
-        name = self.request.match_info["name"]
+            name = self.request.match_info["name"]
+            if name != "":
+                cooler = db_client.get_cooler(name=name)
+                data = await redis_client.get_cooler_state(cooler_id=cooler.id)
+                logging.debug(cooler.name)
+                return web.json_response(data)
+        except:
+            pass
         
-        cooler = db_client.get_cooler(name=name)
-        data = await redis_client.get_cooler_state(cooler_id=cooler.id)
-        logging.debug(cooler.name)
-        return web.json_response(data)
-
 
     async def handle(self, request):
         name = request.match_info.get('name')
