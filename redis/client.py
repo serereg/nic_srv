@@ -50,5 +50,5 @@ class RedisClient:
         if cooler_id in self.data:
             pass
         else:
-            self.set_cooler_state(cooler_id, 0.0, 0.0, 0)
+            await self.set_cooler_state(cooler_id, 0.0, 0.0, 0)
         return self.data[cooler_id][-1]["data"]
