@@ -3,10 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
-db = declarative_base()
+
+Base = declarative_base()
 
 
-class Cooler(db):
+class Cooler(Base):
     __tablename__ = "coolers"
 
     id = Column(Integer, primary_key=True)

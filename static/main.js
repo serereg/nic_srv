@@ -9,7 +9,7 @@ function aread()
     print_console("Запрос инициирован...");
     
     var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/status',true);
+    request.open('GET',document.location.origin+'/states',true);
     request.addEventListener('readystatechange', function() {     
         
         if(request.readyState == 4)
