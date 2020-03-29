@@ -42,13 +42,13 @@ class WS:
     async def _send_temperature_to_web_srv_task(self):
         for c_item in range(8):
             data = {
-            "item": "CKT1",
+            "item": f"CKT{c_item+1}",
             "temperature": c_item,
-            "set_point": 16,
+            "set_point": c_item,
             "state": 11,
             "timestamp": 2020,
-        }
-        await self.ws.send_json(data)
+            }
+            await self.ws.send_json(data)
 
     @timer(0)
     async def _ensure_web_socket(self):
