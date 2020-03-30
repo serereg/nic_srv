@@ -14,6 +14,6 @@ ROUTES = (
     ("/", "*", IndexView),
     ("/states", "*", CoolerAllStatesView),
     ("/command", "*", CoolerCommandView),
-    ("/{name}", "*", CoolerStateView),
+    # ("/{name}", "*", CoolerStateView),
     ("/ws/opc", "*", OPCView),
 )

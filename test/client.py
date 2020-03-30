@@ -36,7 +36,11 @@ class WS:
         self.url = url
         self.ws = None
         self._ws_connected = asyncio.Event()
- 
+
+    @timer(10)
+    async def _receive_commands_from_web_srv_task(self):
+        async for msg in self.ws:
+            print(msg.data)
 
     @timer(10)
     async def _send_temperature_to_web_srv_task(self):
@@ -67,6 +71,7 @@ class WS:
         ]
         await self._ws_connected.wait()
         self.tasks.extend([
+            asyncio.create_task(self._receive_commands_from_web_srv_task()),
             asyncio.create_task(self._send_temperature_to_web_srv_task()),
         ])
 

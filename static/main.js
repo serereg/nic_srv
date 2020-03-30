@@ -30,7 +30,7 @@ function aread()
 					let is_reg_alarm_html = new Array(12)
 					let plc_client_wdt = 0
 					// parsing
-					for (var i = 0; i < 12; i++) {
+					for (var i = 0; i < 7; i++) {
 						pv_html[i] = parseFloat(pars.CKT[i].pv)
 						sp_html[i] = parseFloat(pars.CKT[i].sp)
 						is_reg_on_html[i] = pars.CKT[i].is_reg_on
@@ -39,7 +39,7 @@ function aread()
 					}
 					plc_client_wdt = pars.plc_client_wdt
 					
-					for (var i = 0; i < 12; i++) {
+					for (var i = 0; i < 7; i++) {
 						var num = i+1
 						document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
 						document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
