@@ -10,7 +10,6 @@ class RedisClient:
         self.connection = None
 
     async def connect(self, poolsize=1):
-        # self.data = {}
         self.connection = await asyncio_redis.Pool.create(
             host=self.host,
             port=self.port,
@@ -18,7 +17,6 @@ class RedisClient:
         )
 
     async def close(self):
-        # pass
         await self.connection.close()
 
     async def set_cooler_state(self, cooler_id, temperature, set_point, state):
@@ -27,39 +25,27 @@ class RedisClient:
 
         transaction = await self.connection.multi()
 
-        await transaction.set(f"cooler:{cooler_id}:{timestamp}:temperature", str(temperature))
-        await transaction.set(f"cooler:{cooler_id}:{timestamp}:set_point", str(set_point))
-        await transaction.set(f"cooler:{cooler_id}:{timestamp}:state", str(state))
+        await transaction.rpush(f"cooler:{cooler_id}:temperature", [str(temperature)])
+        await transaction.rpush(f"cooler:{cooler_id}:set_point", [str(set_point)])
+        await transaction.rpush(f"cooler:{cooler_id}:state", [str(state)])
+        await transaction.rpush(f"cooler:{cooler_id}:timestamp", [timestamp])
+
+        await transaction.set(f"cooler:{cooler_id}:last:temperature", str(temperature))
+        await transaction.set(f"cooler:{cooler_id}:last:set_point", str(set_point))
+        await transaction.set(f"cooler:{cooler_id}:last:state", str(state))
 
         await transaction.exec()
 
-        # data = {
-        #     "data": {
-        #         "temperature": temperature,
-        #         "set_point": set_point,
-        #         "state": state,
-        #     },
-        #     "timestamp": timestamp,
-        # }
-        # if cooler_id in self.data:
-        #     self.data[cooler_id].append(data)
-        # else:
-        #     self.data[cooler_id] = [data] 
-        # logging.info(self.data[cooler_id][-1]["data"])
-
     async def get_cooler_state(self, cooler_id):
-        cursor = await self.connection.scan(match=f"cooler:{cooler_id}:*")
-        cooler_data = await cursor.fetchall()
-        cooler_data.sort()
         data = {}
-        for key in cooler_data[-3:]:
-            _, __, timestamp, k = key.split(":")
-            data[k] = float(await self.connection.get(key))
+        temperature = await self.connection.get(f"cooler:{cooler_id}:last:temperature")
+        if temperature:
+            data["temperature"] = float(temperature)
+        set_point = await self.connection.get(f"cooler:{cooler_id}:last:set_point")
+        if set_point:
+            data["set_point"] = int(set_point)
+        state = await self.connection.get(f"cooler:{cooler_id}:last:state")
+        if state:
+            data["state"] = int(state)
         
         return data
-
-        # if cooler_id in self.data:
-        #     pass
-        # else:
-        #     await self.set_cooler_state(cooler_id, 0.0, 0.0, 0)
-        # return self.data[cooler_id][-1]["data"]
