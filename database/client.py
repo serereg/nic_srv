@@ -1,4 +1,4 @@
-from .models import Cooler
+from .models import Cooler, User
 
 import logging
 
@@ -48,6 +48,15 @@ class DBClient:
             condition = condition and Cooler.id == id
         if name is not None:
             condition = condition and Cooler.name == name
-        logging.info(name)
         return self.session.query(Cooler).filter(Cooler.name == name).first()
         # return self.session.query(Cooler).first()
+
+    def get_user(self, id=None, username=None, password=None):
+        condition = True
+        if id is not None:
+            condition = condition and User.id == id
+        if username is not None:
+            condition = condition and User.username == username
+        if password is not None:
+            condition = condition and User.password == password
+        return self.session.query(User).filter(User.username == username).first()

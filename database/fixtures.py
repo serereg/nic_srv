@@ -1,7 +1,15 @@
-from .models import Cooler
+from .models import Cooler, User
 
 
 FIXTURES = [
+    {
+        "model": User,
+        "fields": {
+            "name": "Igor",
+            "password": "",
+        },
+    },
+
     {
         "model": Cooler,
         "fields": {

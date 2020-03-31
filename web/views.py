@@ -3,7 +3,7 @@ import json
 import logging
 
 from aiohttp import web
-import pyjwt
+import jwt
 
 
 NUMBER_OF_COOLERS = 12
@@ -65,7 +65,17 @@ class IndexView(web.View):
 
 class AuthView(web.View):
     async def post(self):
-        pass
+        db_client = self.request.app["database"]
+        
+        data = await self.request.json()
+        # data = await self.request.post()
+
+        user = db_client.get_user(username=data["username"], password=data["password"])
+
+        token = jwt.encode({"username": user.username}, "secret", algorithm="HS256")
+
+        return web.Response(token)
+
 
 
 class CoolerAllStatesView(web.View):

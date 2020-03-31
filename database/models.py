@@ -7,6 +7,14 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(64), unique=True, nullable=False)
+    password = Column(String(32), nullable=False)
+
+
 class Cooler(Base):
     __tablename__ = "coolers"
 
