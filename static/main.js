@@ -1,114 +1,90 @@
+function onload() {
+	var socket = new WebSocket("ws://"+window.location.host+"ws/client")	
 
+	socket.onmessage = function(event) {
+		let pars = JSON.parse(event.data)
+		console.log("GET MESSAGE: " + event.data)
+		// Логика обновления данных
+
+		try {
+			let pv_html = new Array(12)
+			let sp_html = new Array(12)
+			let is_reg_on_html = new Array(12)
+			let is_pv_fault_html = new Array(12)
+			let is_reg_alarm_html = new Array(12)
+			let plc_client_wdt = 0
+			// parsing
+			for (var i = 0; i < 8; i++) {
+				pv_html[i] = parseFloat(pars.CKT[i].pv)
+				sp_html[i] = parseFloat(pars.CKT[i].sp)
+				is_reg_on_html[i] = pars.CKT[i].is_reg_on
+				is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
+				is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
+			}
+			plc_client_wdt = pars.plc_client_wdt
+			
+			for (var i = 0; i < 8; i++) {
+				var num = i+1
+				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
+				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
+				if (is_reg_on_html[i]=="True")
+				{
+					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
+				}
+				else
+				{
+					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
+				}
+				if (is_pv_fault_html[i]=="True")
+				{
+					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
+				}
+				else
+				{
+					if (is_reg_alarm_html[i]=="True")
+					{
+						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
+					}
+					else
+					{
+						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+					}
+				}
+			}
+			// TODO: tempereture fault analyse
+			var index = parseInt(document.getElementById("unitn").value, 10)-1;
+			document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+			if (is_reg_on_html[index]=="True")
+			{
+				document.getElementById("CmdOn").className = "w3-button w3-green";
+				document.getElementById("CmdOff").className = "w3-button w3-green";
+			}
+			else
+			{
+				document.getElementById("CmdOn").className = "w3-button w3-black";
+				document.getElementById("CmdOff").className = "w3-button w3-black";
+			}
+			
+			print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
+		} catch(exception) {
+			document.getElementById("write_sp").value = "exception";
+		};
+	};
+
+	function send() {
+		if (document.getElementById("iseditable").value == "0") {
+			console.log("SEND MESSAGE")
+			socket.send("[1, 2]")
+			setTimeout(send, 1000)
+		}
+	}
+
+	setTimeout(send, 1000);
+}
 
 function print_console(text){
 	document.getElementById("status").value = text;
 }
-
-function aread()
-{    
-    print_console("Запрос инициирован...");
-    
-    var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/states',true);
-    request.addEventListener('readystatechange', function() {     
-        
-        if(request.readyState == 4)
-        {
-        	if(request.status==200)
-        	{
-				
-				var ts2 = request.responseText;
-
-				var pars = JSON.parse(ts2);
-
-				try
-				{
-					let pv_html = new Array(12)
-					let sp_html = new Array(12)
-					let is_reg_on_html = new Array(12)
-					let is_pv_fault_html = new Array(12)
-					let is_reg_alarm_html = new Array(12)
-					let plc_client_wdt = 0
-					// parsing
-					for (var i = 0; i < 7; i++) {
-						pv_html[i] = parseFloat(pars.CKT[i].pv)
-						sp_html[i] = parseFloat(pars.CKT[i].sp)
-						is_reg_on_html[i] = pars.CKT[i].is_reg_on
-						is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
-						is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
-					}
-					plc_client_wdt = pars.plc_client_wdt
-					
-					for (var i = 0; i < 7; i++) {
-						var num = i+1
-						document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
-						document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
-						if (is_reg_on_html[i]=="True")
-						{
-							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
-						}
-						else
-						{
-							document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
-						}
-						if (is_pv_fault_html[i]=="True")
-						{
-							document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
-						}
-						else
-						{
-							if (is_reg_alarm_html[i]=="True")
-							{
-								document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
-							}
-							else
-							{
-								document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
-							}
-						}
-					}
-					// TODO: tempereture fault analyse
-					var index = parseInt(document.getElementById("unitn").value, 10)-1;
-					document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
-					if (is_reg_on_html[index]=="True")
-					{
-						document.getElementById("CmdOn").className = "w3-button w3-green";
-						document.getElementById("CmdOff").className = "w3-button w3-green";
-					}
-					else
-					{
-						document.getElementById("CmdOn").className = "w3-button w3-black";
-						document.getElementById("CmdOff").className = "w3-button w3-black";
-					}
-					
-					print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
-				}catch(exception)
-				{
-					document.getElementById("write_sp").value = "exception";
-				};
-        	}
-        	else
-        	{
-	            print_console("Ошибка:" + request.status);
-        	}
-        }
-
-       });
-   	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-
-    request.send("");
-
-}
-
-function readval_t()
-{
-    if (document.getElementById("iseditable").value == "0")
-        aread();
-    setTimeout(readval_t, 1000);
-
-}
-
 
 function check_real(str)
 {
@@ -231,14 +207,14 @@ function setunit(unit)
 	
 	let i = 1;
 	var uniti = parseInt(unit,10);
-	while (i <= 12) 
-	{ 
-		if(i==uniti)
-			document.getElementById("pv"+i).style.color = white;//.className = "selected";
-		else
-			document.getElementById("pv"+i).style.color = red;//.className = "monitor";
-		i++;
-	}
+	// while (i <= 12) 
+	// { 
+	// 	if(i==uniti)
+	// 		document.getElementById("pv"+i).style.color = white;//.className = "selected";
+	// 	else
+	// 		document.getElementById("pv"+i).style.color = red;//.className = "monitor";
+	// 	i++;
+	// }
 }
 
 function checkBoxEvent() {

@@ -28,7 +28,7 @@ class RedisClient:
         await transaction.rpush(f"cooler:{cooler_id}:temperature", [str(temperature)])
         await transaction.rpush(f"cooler:{cooler_id}:set_point", [str(set_point)])
         await transaction.rpush(f"cooler:{cooler_id}:state", [str(state)])
-        await transaction.rpush(f"cooler:{cooler_id}:timestamp", [timestamp])
+        await transaction.rpush(f"cooler:{cooler_id}:timestamp", [str(timestamp)])
 
         await transaction.set(f"cooler:{cooler_id}:last:temperature", str(temperature))
         await transaction.set(f"cooler:{cooler_id}:last:set_point", str(set_point))

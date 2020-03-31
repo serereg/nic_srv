@@ -1,7 +1,9 @@
-from aiohttp import web
 import asyncio
 import json
 import logging
+
+from aiohttp import web
+import pyjwt
 
 
 NUMBER_OF_COOLERS = 12
@@ -10,16 +12,15 @@ STATE_IS_FAULT = 1
 STATE_IS_ALARM = 2
 
 
-class OPCView(web.View):
-    client = None
-
+class WSOPCView(web.View):
     async def get(self):
         db_client = self.request.app["database"]
         redis_client = self.request.app["redis"]
-        self.client = web.WebSocketResponse()
-        await self.client.prepare(self.request)
 
-        async for message in self.client:
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+
+        async for message in ws:
             data = json.loads(message.data)
             cooler = db_client.get_cooler(name=data["item"])
 
@@ -31,23 +32,41 @@ class OPCView(web.View):
             )
 
 
+class WSClientView(web.View):
+    async def get(self):
+        db_client = self.request.app["database"]
+        redis_client = self.request.app["redis"]
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+
+        async for message in ws:
+            data = json.loads(message.data)
+ 
+            CKT = []
+            for cooler in db_client.get_coolers():
+                data = await redis_client.get_cooler_state(cooler_id=cooler.id)
+                if data:
+                    CKT.append({
+                        "id": cooler.id,
+                        "pv": data["temperature"], 
+                        "sp": data["set_point"], 
+                        "is_reg_on": is_set(data["state"], STATE_IS_ON), 
+                        "is_pv_fault": is_set(data["state"], STATE_IS_FAULT),
+                        "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
+                    })
+
+            await ws.send_json({"CKT": CKT, "plc_client_wdt": 123})
+
+
 class IndexView(web.View):
     async def get(self):
         return web.FileResponse("static/index.html")
 
 
-class CoolerStateView(web.View):
-    async def get(self):
-        db_client = self.request.app["database"]
-        redis_client = self.request.app["redis"]
+class AuthView(web.View):
+    async def post(self):
+        pass
 
-        name = self.request.match_info["name"]
-        if name:
-            cooler = db_client.get_cooler(name=name)
-            data = await redis_client.get_cooler_state(cooler_id=cooler.id)
-            logging.debug(cooler.name)
-            return web.json_response(data)
-        
 
 class CoolerAllStatesView(web.View):
     async def get(self):
