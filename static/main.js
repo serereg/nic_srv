@@ -1,5 +1,5 @@
 function onload() {
-	var socket = new WebSocket("ws://"+window.location.host+"ws/client")	
+	var socket = new WebSocket("ws://"+window.location.host+"/ws/client")	
 
 	socket.onmessage = function(event) {
 		let pars = JSON.parse(event.data)
