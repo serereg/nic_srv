@@ -415,13 +415,14 @@
 				<div class="w3-container w3-white">
 					<div class="w3-display-middle w3-container">
 						<div class="w3-container w3-card-4 w3-light-grey">
-							<form action="/description" method="get" accept-charset="utf-8"
-								onsubmit="return confirm('Do you really want to submit the form?');">
+							<div accept-charset="utf-8"
+								>
 								<h2>ЦКТ №<input type="number" list="coolers" name = "cur_ckt" min="1" max="12" id="unitn" value="1"/>:</h2>
 								
 								<p><label for="ckt_description">Изменить описание:</label></p>
 								<textarea class="form-control w3-border w3-round-large" rows="5" name="ckt_description" type="text" id="ckt_description" maxlength="200"></textarea>
-								<p><input type="submit" value="Изменить описание"/></p>
+								
+								<button onclick = "send_description()"> "Изменить описание" </button>
 							</form>
 							
 						</div>

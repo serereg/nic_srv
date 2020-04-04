@@ -18,6 +18,9 @@ class WSOPCView(web.View):
         redis_client = self.request.app["redis"]
 
         ws = web.WebSocketResponse()
+
+        self.request.app["ws_opc_client"] = ws
+
         await ws.prepare(self.request)
 
         async for message in ws:
@@ -41,7 +44,9 @@ class WSClientView(web.View):
 
         async for message in ws:
             data = json.loads(message.data)
- 
+            if data["asd"]:
+                await self.post()
+
             CKT = []
             for cooler in db_client.get_coolers():
                 data = await redis_client.get_cooler_state(cooler_id=cooler.id)
@@ -56,6 +61,12 @@ class WSClientView(web.View):
                     })
 
             await ws.send_json({"CKT": CKT, "plc_client_wdt": 123})
+
+    async def post(self):
+        ws = self.request.app["ws_opc_client"]
+        data = {"test_data": "post"}
+        await ws.send_json({"CKT": 1, "plc_client_wdt": 123})
+        print(data)
 
 
 class IndexView(web.View):
@@ -136,8 +147,9 @@ class CoolerCommandView(web.View):
         # print(data)
         # coros = [ws.send_json(data) for ws in self._opc_clients]
         # await asyncio.gather(*coros, return_exceptions=True)
-        if OPCView.client:
-            OPCView.client.send_json(data)
+        ws = self.request.app["ws_opc_client"]
+        if ws:
+            ws.send_json(data)
 
     # async def _simulate_commands(self):
     #     import random

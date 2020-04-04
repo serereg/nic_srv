@@ -1,9 +1,11 @@
+var glob_socket
+
 function onload() {
 	var socket = new WebSocket("ws://"+window.location.host+"/ws/client")	
-
+	glob_socket = socket
 	socket.onmessage = function(event) {
 		let pars = JSON.parse(event.data)
-		console.log("GET MESSAGE: " + event.data)
+		// console.log("GET MESSAGE: " + event.data)
 		// Логика обновления данных
 
 		try {
@@ -73,8 +75,8 @@ function onload() {
 
 	function send() {
 		if (document.getElementById("iseditable").value == "0") {
-			console.log("SEND MESSAGE")
-			socket.send("[1, 2]")
+			// console.log("SEND MESSAGE")
+			// socket.send("[1, 2]")
 			setTimeout(send, 1000)
 		}
 	}
@@ -233,4 +235,10 @@ function checkBoxEvent() {
 		Ach = document.getElementsByClassName("w3-green");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
 	}
+}
+
+function send_description() {
+	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
+	print_console("send_description")
+	glob_socket.send(JSON.stringify({"asd":1}))
 }
