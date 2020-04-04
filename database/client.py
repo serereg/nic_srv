@@ -2,7 +2,7 @@ from .models import Cooler, User
 
 import logging
 
-from sqlalchemy import create_engine
+from sqlalchemy import and_, create_engine
 from sqlalchemy.orm import sessionmaker
 
 
@@ -31,7 +31,6 @@ class DBClient:
                 clr.name = fixture["fields"]["name"]
                 clr.description = fixture["fields"]["description"]
                 self.session.add(clr)
-                logging.debug('commit')
                 self.session.commit()
             except:
                 self.session.rollback()
@@ -43,20 +42,22 @@ class DBClient:
         return self.session.query(Cooler).all()
 
     def get_cooler(self, id=None, name=None):
-        condition = True
+        result = None
         if id is not None:
-            condition = condition and Cooler.id == id
+            result = Cooler.id == id
         if name is not None:
-            condition = condition and Cooler.name == name
-        return self.session.query(Cooler).filter(Cooler.name == name).first()
-        # return self.session.query(Cooler).first()
+            condition = Cooler.name == name
+            result = and_(result, condition) if result else condition
+        return self.session.query(Cooler).filter(result).first()
 
     def get_user(self, id=None, username=None, password=None):
-        condition = True
+        result = None
         if id is not None:
-            condition = condition and User.id == id
+            result = User.id == id
         if username is not None:
-            condition = condition and User.username == username
+            condition = User.username == username
+            result = and_(result, condition) if result else condition 
         if password is not None:
-            condition = condition and User.password == password
-        return self.session.query(User).filter(User.username == username).first()
+            condition = User.password == password
+            result = and_(result, condition) if result else condition
+        return self.session.query(User).filter(result).first()

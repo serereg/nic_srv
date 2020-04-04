@@ -43,30 +43,51 @@ class WSClientView(web.View):
         await ws.prepare(self.request)
 
         async for message in ws:
-            data = json.loads(message.data)
-            if data["asd"]:
-                await self.post()
+            try:
+                data = json.loads(message.data)
+                if data["method"] == "state":
+                    await self.state(ws)
+                elif data["method"] == "command":
+                    await self.command()
+                elif data["method"] == "description.set":
+                    id, description = data["params"]["id"], data["params"]["description"]
+                    await self.set_description(id, description)
+            finally:
+                pass
 
-            CKT = []
-            for cooler in db_client.get_coolers():
-                data = await redis_client.get_cooler_state(cooler_id=cooler.id)
-                if data:
-                    CKT.append({
-                        "id": cooler.id,
-                        "pv": data["temperature"], 
-                        "sp": data["set_point"], 
-                        "is_reg_on": is_set(data["state"], STATE_IS_ON), 
-                        "is_pv_fault": is_set(data["state"], STATE_IS_FAULT),
-                        "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
-                    })
+    async def state(self, ws):
+        db_client = self.request.app["database"]
+        redis_client = self.request.app["redis"]
 
-            await ws.send_json({"CKT": CKT, "plc_client_wdt": 123})
+        CKT = []
+        for cooler in db_client.get_coolers():
+            data = await redis_client.get_cooler_state(cooler_id=cooler.id)
+            if data:
+                CKT.append({
+                    "id": cooler.id,
+                    "description": cooler.description,
+                    "pv": data["temperature"], 
+                    "sp": data["set_point"], 
+                    "is_reg_on": is_set(data["state"], STATE_IS_ON), 
+                    "is_pv_fault": is_set(data["state"], STATE_IS_FAULT),
+                    "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
+                })
 
-    async def post(self):
+        await ws.send_json({"CKT": CKT, "plc_client_wdt": 123})
+
+    async def command(self):
         ws = self.request.app["ws_opc_client"]
         data = {"test_data": "post"}
         await ws.send_json({"CKT": 1, "plc_client_wdt": 123})
-        print(data)
+
+    async def set_description(self, id, description):
+        db_client = self.request.app["database"]
+        
+        cooler = db_client.get_cooler(id=id)
+        if not cooler:
+            return
+        cooler.description = description
+        db_client.session.commit()
 
 
 class IndexView(web.View):

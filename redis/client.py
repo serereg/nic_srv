@@ -20,8 +20,7 @@ class RedisClient:
         await self.connection.close()
 
     async def set_cooler_state(self, cooler_id, temperature, set_point, state):
-        timestamp = datetime.datetime.now().timestamp()      
-        print("TSS:", timestamp)
+        timestamp = datetime.datetime.now().timestamp()
 
         transaction = await self.connection.multi()
 

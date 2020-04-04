@@ -27,6 +27,9 @@ function onload() {
 			
 			for (var i = 0; i < 8; i++) {
 				var num = i+1
+
+				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description
+
 				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
 				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
 				if (is_reg_on_html[i]=="True")
@@ -75,8 +78,7 @@ function onload() {
 
 	function send() {
 		if (document.getElementById("iseditable").value == "0") {
-			// console.log("SEND MESSAGE")
-			// socket.send("[1, 2]")
+			socket.send(JSON.stringify({"method": "state"}))
 			setTimeout(send, 1000)
 		}
 	}
@@ -240,5 +242,11 @@ function checkBoxEvent() {
 function send_description() {
 	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
 	print_console("send_description")
-	glob_socket.send(JSON.stringify({"asd":1}))
+	glob_socket.send(JSON.stringify({
+		"method": "description.set",
+		"params": {
+			"id": parseInt(document.getElementById("unitn").value, 10),
+			"description": document.getElementById("ckt_description").value, 
+		},
+	}))
 }
