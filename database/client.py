@@ -61,3 +61,10 @@ class DBClient:
             condition = User.password == password
             result = and_(result, condition) if result else condition
         return self.session.query(User).filter(result).first()
+
+    def add_user(self, username, password):
+        user = User(username=username, password=password)
+        self.session.add(user)
+        self.session.commit()
+
+        return user

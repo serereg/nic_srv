@@ -245,7 +245,7 @@ function send_description() {
 	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
 	
 	pack = {
-		"method": "description.set",
+		"method": "set_description",
 		"params": {
 			"id": parseInt(document.getElementById("unitn_desc").value, 10),
 			"description": document.getElementById("ckt_description").value, 

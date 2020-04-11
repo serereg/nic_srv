@@ -7,17 +7,26 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
-class User(Base):
+class Common:
+    id = Column(Integer, primary_key=True)
+
+
+class User(Common, Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
     username = Column(String(64), unique=True, nullable=False)
     password = Column(String(32), nullable=False)
 
 
-class Cooler(Base):
+class Session(Common, Base):
+    __tablename__ = "sessions"
+
+    user_id = Column(Integer, ForeignKey(f"{User.__tablename__}.id"), nullable=False)
+    token = Column(String(64), nullable=False, unique=True)
+
+
+class Cooler(Common, Base):
     __tablename__ = "coolers"
 
-    id = Column(Integer, primary_key=True)
     name = Column(String(8), unique=True, nullable=False)
     description = Column(Text, nullable=False, default=lambda: "")

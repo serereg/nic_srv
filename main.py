@@ -38,4 +38,4 @@ if __name__ == '__main__':
         app.router.add_route(method, path, view)
     app.router.add_static("/static", "static")
 
-    web.run_app(app)
+    web.run_app(app, port=80)

@@ -1,9 +1,7 @@
 import asyncio
-import json
 import logging
 
-from aiohttp import web
-import jwt
+from .utils import HTTPView, JSONRPCView, WSView
 
 
 NUMBER_OF_COOLERS = 12
@@ -12,58 +10,34 @@ STATE_IS_FAULT = 1
 STATE_IS_ALARM = 2
 
 
-class WSOPCView(web.View):
-    async def get(self):
+class WSOPCView(WSView, JSONRPCView):
+    async def state(self, item, temperature, set_point, state):
+        self.request.app["ws_opc_client"] = self.ws
+
         db_client = self.request.app["database"]
         redis_client = self.request.app["redis"]
 
-        ws = web.WebSocketResponse()
+        cooler = db_client.get_cooler(name=item)
+        if cooler is None:
+            return None, f"No cooler with name '{item}' in database"
 
-        self.request.app["ws_opc_client"] = ws
+        await redis_client.set_cooler_state(
+            cooler_id=int(cooler.id),
+            temperature=temperature,
+            set_point=set_point,
+            state=state,
+        )
 
-        await ws.prepare(self.request)
-
-        async for message in ws:
-            data = json.loads(message.data)
-            cooler = db_client.get_cooler(name=data["item"])
-
-            await redis_client.set_cooler_state(
-                cooler_id=int(cooler.id),
-                temperature=data["temperature"],
-                set_point=data["set_point"],
-                state=data["state"],
-            )
+        return "ok", None
 
 
-class WSClientView(web.View):
-    async def get(self):
-        db_client = self.request.app["database"]
-        redis_client = self.request.app["redis"]
-        ws = web.WebSocketResponse()
-        await ws.prepare(self.request)
-
-        async for message in ws:
-            try:
-                data = json.loads(message.data)
-                if data["method"] == "state":
-                    await self.state(ws)
-                elif data["method"] == "command":
-                    await self.command()
-                elif data["method"] == "description.set":
-                    id, description = data["params"]["id"], data["params"]["description"]
-                    await self.set_description(id, description)
-            finally:
-                pass
-
-    async def state(self, ws):
-        db_client = self.request.app["database"]
-        redis_client = self.request.app["redis"]
-
-        CKT = []
+class WSClientView(WSView, JSONRPCView):
+    async def state(self):
+        result = []
         for cooler in db_client.get_coolers():
             data = await redis_client.get_cooler_state(cooler_id=cooler.id)
             if data:
-                CKT.append({
+                result.append({
                     "id": cooler.id,
                     "description": cooler.description,
                     "pv": data["temperature"], 
@@ -73,21 +47,35 @@ class WSClientView(web.View):
                     "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
                 })
 
-        await ws.send_json({"CKT": CKT, "plc_client_wdt": 123})
+        return result, None
 
-    async def command(self):
+    async def command(self, command, params):
         ws = self.request.app["ws_opc_client"]
         data = {"test_data": "post"}
         await ws.send_json({"CKT": 1, "plc_client_wdt": 123})
+
+        return "ok", None
 
     async def set_description(self, id, description):
         db_client = self.request.app["database"]
         
         cooler = db_client.get_cooler(id=id)
-        if not cooler:
-            return
+        if cooler is None:
+            return None, f"No cooler with name '{item}' in database"
         cooler.description = description
         db_client.session.commit()
+
+        return "ok", None
+
+
+class APIClientView(HTTPView, JSONRPCView):
+    def auth(self, username, password):
+        db_client = self.request.app["database"]
+        user = db_client.get_user(username=username, password=password)
+        if user is None:
+            return None, "Incorrect username or password"
+
+        return {"token": ""}
 
 
 class IndexView(web.View):
