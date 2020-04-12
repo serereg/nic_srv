@@ -36,6 +36,9 @@ class WSOPCView(JSONRPCView, WSView):
 class WSClientView(JSONRPCView, WSView):
     @JSONRPCView.login_required
     async def state(self):
+        db_client = self.request.app["database"]
+        redis_client = self.request.app["redis"]
+
         result = []
         for cooler in db_client.get_coolers():
             data = await redis_client.get_cooler_state(cooler_id=cooler.id)
@@ -74,7 +77,7 @@ class WSClientView(JSONRPCView, WSView):
 
 
 class APIClientView(JSONRPCView, HTTPView):
-    def login(self, username, password):
+    async def login(self, username, password):
         db_client = self.request.app["database"]
         user = db_client.get_user(username=username, password=password)
         if user is None:
@@ -85,7 +88,7 @@ class APIClientView(JSONRPCView, HTTPView):
         return {"token": session.token}, None
 
     @JSONRPCView.login_required
-    def logout(self):
+    async def logout(self):
         self.session.delete()
         self.request.app["database"].commit()
 

@@ -10,7 +10,7 @@ class HTTPView(web.View):
         pass
 
     async def post(self):
-        return web.Response(text=await self.handle(
+        return web.json_response(await self.handle(
             await self.request.text(),
             self.request.headers,
         ))
@@ -86,4 +86,4 @@ class JSONRPCView(web.View):
             print(e)
             response["error"] = "Server error"
         finally:
-            return json.dumps(response)
+            return response
