@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+from aiohttp import web
+
 from .utils import HTTPView, JSONRPCView, WSView
 
 
@@ -10,7 +12,7 @@ STATE_IS_FAULT = 1
 STATE_IS_ALARM = 2
 
 
-class WSOPCView(WSView, JSONRPCView):
+class WSOPCView(JSONRPCView, WSView):
     async def state(self, item, temperature, set_point, state):
         self.request.app["ws_opc_client"] = self.ws
 
@@ -31,7 +33,8 @@ class WSOPCView(WSView, JSONRPCView):
         return "ok", None
 
 
-class WSClientView(WSView, JSONRPCView):
+class WSClientView(JSONRPCView, WSView):
+    @JSONRPCView.login_required
     async def state(self):
         result = []
         for cooler in db_client.get_coolers():
@@ -49,6 +52,7 @@ class WSClientView(WSView, JSONRPCView):
 
         return result, None
 
+    @JSONRPCView.login_required
     async def command(self, command, params):
         ws = self.request.app["ws_opc_client"]
         data = {"test_data": "post"}
@@ -56,6 +60,7 @@ class WSClientView(WSView, JSONRPCView):
 
         return "ok", None
 
+    @JSONRPCView.login_required
     async def set_description(self, id, description):
         db_client = self.request.app["database"]
         
@@ -68,33 +73,26 @@ class WSClientView(WSView, JSONRPCView):
         return "ok", None
 
 
-class APIClientView(HTTPView, JSONRPCView):
-    def auth(self, username, password):
+class APIClientView(JSONRPCView, HTTPView):
+    def login(self, username, password):
         db_client = self.request.app["database"]
         user = db_client.get_user(username=username, password=password)
         if user is None:
             return None, "Incorrect username or password"
 
-        return {"token": ""}
+        session = db_client.create_session(user)
+
+        return {"token": session.token}, None
+
+    @JSONRPCView.login_required
+    def logout(self):
+        self.session.delete()
+        self.request.app["database"].commit()
 
 
 class IndexView(web.View):
     async def get(self):
         return web.FileResponse("static/index.html")
-
-
-class AuthView(web.View):
-    async def post(self):
-        db_client = self.request.app["database"]
-        
-        data = await self.request.json()
-        # data = await self.request.post()
-
-        user = db_client.get_user(username=data["username"], password=data["password"])
-
-        token = jwt.encode({"username": user.username}, "secret", algorithm="HS256")
-
-        return web.Response(token)
 
 
 

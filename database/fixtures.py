@@ -5,7 +5,7 @@ FIXTURES = [
     {
         "model": User,
         "fields": {
-            "name": "Igor",
+            "username": "Igor",
             "password": "",
         },
     },

@@ -1,9 +1,10 @@
-from .models import Cooler, User
-
 import logging
+import uuid
 
-from sqlalchemy import and_, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from .models import Cooler, Session, User
 
 
 class DBClient:
@@ -27,10 +28,8 @@ class DBClient:
     def add_fixtures(self, fixtures):
         for fixture in fixtures:
             try:
-                clr = Cooler()
-                clr.name = fixture["fields"]["name"]
-                clr.description = fixture["fields"]["description"]
-                self.session.add(clr)
+                record = fixture["model"](**fixture["fields"])
+                self.session.add(record)
                 self.session.commit()
             except:
                 self.session.rollback()
@@ -47,8 +46,29 @@ class DBClient:
             result = Cooler.id == id
         if name is not None:
             condition = Cooler.name == name
-            result = and_(result, condition) if result else condition
+            result = result & condition if result else condition
         return self.session.query(Cooler).filter(result).first()
+
+    def remove_cooler(self, id=None, name=None):
+        result = None
+        if id is not None:
+            result = Cooler.id == id
+        if name is not None:
+            condition = Cooler.name == name
+            result = result & condition if result else condition
+        coolers = self.session.query(Cooler).filter(result)
+        coolers.delete()
+        self.session.commit()
+
+    def create_user(self, username, password):
+        user = User(username=username, password=password)
+        self.session.add(user)
+        self.session.commit()
+
+        return user
+
+    def get_users(self):
+        pass
 
     def get_user(self, id=None, username=None, password=None):
         result = None
@@ -56,15 +76,48 @@ class DBClient:
             result = User.id == id
         if username is not None:
             condition = User.username == username
-            result = and_(result, condition) if result else condition 
+            result = result & condition if result else condition
         if password is not None:
             condition = User.password == password
-            result = and_(result, condition) if result else condition
+            result = result & condition if result else condition
         return self.session.query(User).filter(result).first()
 
-    def add_user(self, username, password):
-        user = User(username=username, password=password)
-        self.session.add(user)
+    def remove_user(self, id=None, username=None, password=None):
+        result = None
+        if id is not None:
+            result = User.id == id
+        if username is not None:
+            condition = User.username == username
+            result = result & condition if result else condition 
+        if password is not None:
+            condition = User.password == password
+            result = result & condition if result else condition
+        users = self.session.query(User).filter(result)
+        users.delete()
         self.session.commit()
 
-        return user
+    def create_session(self, user):
+        while True:
+            session = Session(user_id=user.id, token=str(uuid.uuid4()))
+            try:
+                self.session.add(session)
+                self.session.commit()
+                break
+            except Exception as e:
+                print(e)
+                self.session.rollback()
+
+        return session
+
+    def get_sessions(self, user=None, token=None):
+        pass
+
+    def get_session(self, user=None, token=None):
+        result = None
+        if user is not None:
+            result = Session.user_id == user.id
+        if token is not None:
+            condition = Session.token == token
+            result = result & condition if result else condition  
+        session = self.session.query(User).filter(result).first()
+        return session
