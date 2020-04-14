@@ -1,91 +1,178 @@
-var glob_socket
 
-function onload() {
-	var socket = new WebSocket("ws://"+window.location.host+"/ws/client")	
-	glob_socket = socket
-	socket.onmessage = function(event) {
-		let pars = JSON.parse(event.data)
-		// console.log("GET MESSAGE: " + event.data)
-		// Логика обновления данных
+var glob_socket = null
+var glob_request_id = 0
+var requests = {}
 
-		try {
-			let pv_html = new Array(12)
-			let sp_html = new Array(12)
-			let is_reg_on_html = new Array(12)
-			let is_pv_fault_html = new Array(12)
-			let is_reg_alarm_html = new Array(12)
-			let plc_client_wdt = 0
-			// parsing
-			for (var i = 0; i < 8; i++) {
-				pv_html[i] = parseFloat(pars.CKT[i].pv)
-				sp_html[i] = parseFloat(pars.CKT[i].sp)
-				is_reg_on_html[i] = pars.CKT[i].is_reg_on
-				is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
-				is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
-			}
-			plc_client_wdt = pars.plc_client_wdt
+
+// UTILS
+function jsonrpc(method, params) {
+	let token = localStorage.getItem("token")
+	if (token != null) {
+		params.token = token
+	}
+	if (++glob_request_id < 0) {
+		glob_request_id = 1
+	}
+	let data = {
+		jsonrpc: "2.0",
+		method: method,
+		id: glob_request_id,
+		params: {},
+	}
+	for (key in params) {
+		data.params[key] = params[key]
+	}
+	return JSON.stringify(data)
+}
+
+function send_http(method, params, handler) {
+	fetch("http://"+window.location.host+"/api/client", { 
+		method: "POST",
+		body: jsonrpc(method, params),
+	})
+	.then(response => response.json())
+	.then(data => {handler(data)})
+}
+
+function handler_ws(event) {
+	let pars = JSON.parse(event.data).result
+	console.log(pars)
+	// console.log("GET MESSAGE: " + event.data)
+	// Логика обновления данных
+
+	try {
+		let pv_html = new Array(12)
+		let sp_html = new Array(12)
+		let is_reg_on_html = new Array(12)
+		let is_pv_fault_html = new Array(12)
+		let is_reg_alarm_html = new Array(12)
+		let plc_client_wdt = 0
+		// parsing
+		for (var i = 0; i < 8; i++) {
+			pv_html[i] = parseFloat(pars[i].pv)
+			sp_html[i] = parseFloat(pars[i].sp)
+			is_reg_on_html[i] = pars[i].is_reg_on
+			is_pv_fault_html[i] = pars[i].is_pv_fault
+			is_reg_alarm_html[i] = pars[i].is_reg_alarm
+		}
+		plc_client_wdt = pars.plc_client_wdt
+		
+		//console.log(pars)
+
+		for (var i = 0; i < 8; i++) {
+			var num = i+1
+
+			document.getElementById("description_plate"+num.toString()).value = pars[i].description
 			
-			//console.log(pars)
-
-			for (var i = 0; i < 8; i++) {
-				var num = i+1
-
-				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description
-				
-				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
-				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
-				if (is_reg_on_html[i]=="True")
-				{
-					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
-				}
-				else
-				{
-					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
-				}
-				if (is_pv_fault_html[i]=="True")
-				{
-					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
-				}
-				else
-				{
-					if (is_reg_alarm_html[i]=="True")
-					{
-						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
-					}
-					else
-					{
-						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
-					}
-				}
-			}
-			// TODO: tempereture fault analyse
-			var index = parseInt(document.getElementById("unitn").value, 10)-1;
-			document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
-			if (is_reg_on_html[index]=="True")
+			document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
+			document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
+			if (is_reg_on_html[i]=="True")
 			{
-				document.getElementById("CmdOn").className = "w3-button w3-green";
-				document.getElementById("CmdOff").className = "w3-button w3-green";
+				document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
 			}
 			else
 			{
-				document.getElementById("CmdOn").className = "w3-button w3-black";
-				document.getElementById("CmdOff").className = "w3-button w3-black";
+				document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
 			}
-			
-			print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
-		} catch(exception) {
-			document.getElementById("write_sp").value = "exception";
-		};
-	};
-
-	function send() {
-		if (document.getElementById("iseditable").value == "0") {
-			socket.send(JSON.stringify({"method": "state"}))
-			setTimeout(send, 1000)
+			if (is_pv_fault_html[i]=="True")
+			{
+				document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
+			}
+			else
+			{
+				if (is_reg_alarm_html[i]=="True")
+				{
+					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
+				}
+				else
+				{
+					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+				}
+			}
 		}
+		// TODO: tempereture fault analyse
+		var index = parseInt(document.getElementById("unitn").value, 10)-1;
+		document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+		if (is_reg_on_html[index]=="True")
+		{
+			document.getElementById("CmdOn").className = "w3-button w3-green";
+			document.getElementById("CmdOff").className = "w3-button w3-green";
+		}
+		else
+		{
+			document.getElementById("CmdOn").className = "w3-button w3-black";
+			document.getElementById("CmdOff").className = "w3-button w3-black";
+		}
+		
+		print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
+	} catch(exception) {
+		document.getElementById("write_sp").value = "exception";
+	};
+}
+
+function send_ws(method, params) {
+	if (!glob_socket || glob_socket.readyState > 1) {
+		glob_socket = new WebSocket("ws://"+window.location.host+"/ws/client")
+		glob_socket.onmessage = handler_ws
+	}
+	if (glob_socket.readyState == WebSocket.CONNECTING) {
+		glob_socket.onopen = function() {
+			glob_socket.send(jsonrpc(method, params))
+		}
+	} else {
+		glob_socket.send(jsonrpc(method, params))
+	}
+}
+
+
+function onload() {
+	let token = localStorage.getItem("token")
+	if (token) {
+		document.getElementById("auth").style.display = "none"
+		document.getElementById("panel").style.display = "block"
+		get_state()
+	} else {
+		document.getElementById("auth").style.display = "block"
+		document.getElementById("panel").style.display = "none"
 	}
 
-	setTimeout(send, 1000);
+	// function send() {
+	// 	if (document.getElementById("iseditable").value == "0") {
+	// 		socket.send(JSON.stringify({"method": "state"}))
+	// 		setTimeout(send, 1000)
+	// 	}
+	// }
+}
+
+
+// REQUESTS
+function auth() {
+	username = document.getElementById("auth_username").value
+	password = document.getElementById("auth_password").value
+
+	send_http("login", {
+		username: username,
+		password: password,
+	}, (data) => {
+		if (data.result) {
+			localStorage.setItem("token", data.result.token)
+			document.getElementById("auth").style.display = "none"
+			document.getElementById("panel").style.display = "block"
+			get_state()
+		}
+	})
+}
+
+function get_state() {
+	send_ws("state", {})
+	console.log("SEND")
+
+	if (localStorage.getItem("token")) {
+		setTimeout(get_state, 1000)
+	} else {
+		document.getElementById("auth").style.display = "block"
+		document.getElementById("panel").style.display = "none"
+	}
 }
 
 function print_console(text){

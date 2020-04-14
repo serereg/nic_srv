@@ -3,7 +3,6 @@ import json
 from aiohttp import web
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-import jwt
 
 
 class HTTPView(web.View):
@@ -11,9 +10,10 @@ class HTTPView(web.View):
         pass
 
     async def post(self):
-        status_code, headers, body = await self.handler(request.body, request.headers)
-
-        return web.Response(body)
+        return web.json_response(await self.handle(
+            await self.request.text(),
+            self.request.headers,
+        ))
 
 
 class WSView(web.View):
@@ -22,7 +22,7 @@ class WSView(web.View):
         await self.ws.prepare(self.request)
 
         async for message in self.ws:
-            await self.ws.send_json(await self.handle(message.data, message.headers))
+            await self.ws.send_json(await self.handle(message.data, {}))
 
     async def handle(self, data, headers):
         raise NotImplementedError
@@ -49,9 +49,19 @@ class JSONRPCView(web.View):
         "required": ["jsonrpc", "id", "method"],
     }
 
-    def auth(coroutine):
+    def login_required(coroutine):
         async def wrapper(self, **params):
-            pass
+            db_client = self.request.app["database"]
+            
+            if "token" not in params:
+                return None, "Have no token"
+            session = db_client.get_session(token=params["token"])
+            if session is None:
+                return None, "Incorrect token"
+            del params["token"]
+            self.session = session
+
+            return await coroutine(self, **params)
 
         return wrapper
 
@@ -59,11 +69,11 @@ class JSONRPCView(web.View):
     async def handle(self, data, headers):
         response = {"jsonrpc": "2.0", "error": None, "result": None, "id": None}
         try:
-            data = json.loads(message.data)
+            data = json.loads(data)
             validate(data, schema=self.SCHEMA)
             if hasattr(self, data["method"]):
                 method = getattr(self, data["method"])
-                response["result"], response["error"] = method(**data.get("params", {}))
+                response["result"], response["error"] = await method(**data.get("params", {}))
             else:
                 response["error"] = f"Have no method '{data['method']}'"
             response["id"] = data["id"]
@@ -72,7 +82,8 @@ class JSONRPCView(web.View):
         except ValidationError as e:
             response["error"] = e.args[0]
             response["id"] = data.get("id")
-        except:
+        except Exception as e:
+            print(e)
             response["error"] = "Server error"
         finally:
             return response

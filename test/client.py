@@ -46,11 +46,15 @@ class WS:
     async def _send_temperature_to_web_srv_task(self):
         for c_item in range(8):
             data = {
-            "item": f"CKT{c_item+1}",
-            "temperature": c_item,
-            "set_point": c_item,
-            "state": 11,
-            "timestamp": 2020,
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "state",
+                "params": {
+                    "item": f"CKT{c_item+1}",
+                    "temperature": c_item,
+                    "set_point": c_item,
+                    "state": 11,
+                },
             }
             await self.ws.send_json(data)
 
@@ -82,7 +86,7 @@ class WS:
 
 
 async def main():
-    ws = WS("http://localhost:8080/ws/opc")
+    ws = WS("http://localhost:80/ws/opc")
     await ws.run()
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ class Session(Common, Base):
     __tablename__ = "sessions"
 
     user_id = Column(Integer, ForeignKey(f"{User.__tablename__}.id"), nullable=False)
-    token = Column(String(64), nullable=False, unique=True)
+    token = Column(String(36), nullable=False, unique=True)
 
 
 class Cooler(Common, Base):
