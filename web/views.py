@@ -65,7 +65,6 @@ class WSClientView(JSONRPCView, WSView):
 
     @JSONRPCView.login_required
     async def set_description(self, id, description):
-        print("678976678ghjbvcvbnm,")
         db_client = self.request.app["database"]
         
         cooler = db_client.get_cooler(id=id)
@@ -97,7 +96,6 @@ class APIClientView(JSONRPCView, HTTPView):
 class IndexView(web.View):
     async def get(self):
         return web.FileResponse("static/index.html")
-
 
 
 class CoolerAllStatesView(web.View):

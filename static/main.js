@@ -338,6 +338,10 @@ function send_description() {
 			"description": document.getElementById("ckt_description").value, 
 		},
 	}
-	console.log(pack)
-	glob_socket.send(JSON.stringify(pack))
+	//console.log(pack)
+	//glob_socket.send(JSON.stringify(pack))
+	send_ws("set_description", {
+			"id": parseInt(document.getElementById("unitn_desc").value, 10),
+			"description": document.getElementById("ckt_description").value, 
+		})
 }

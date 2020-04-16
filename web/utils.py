@@ -7,6 +7,7 @@ from jsonschema.exceptions import ValidationError
 
 class HTTPView(web.View):
     async def get(self):
+        print("httpview get")
         pass
 
     async def post(self):
@@ -25,7 +26,6 @@ class WSView(web.View):
             await self.ws.send_json(await self.handle(message.data, {}))
 
     async def handle(self, data, headers):
-        print("wsview handle")
         raise NotImplementedError
 
 
@@ -51,10 +51,8 @@ class JSONRPCView(web.View):
     }
 
     def login_required(coroutine):
-        print("loin_req")
         async def wrapper(self, **params):
             db_client = self.request.app["database"]
-            
             if "token" not in params:
                 return None, "Have no token"
             session = db_client.get_session(token=params["token"])
@@ -62,7 +60,6 @@ class JSONRPCView(web.View):
                 return None, "Incorrect token"
             del params["token"]
             self.session = session
-
             return await coroutine(self, **params)
 
         return wrapper
