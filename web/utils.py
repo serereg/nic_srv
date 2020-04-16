@@ -25,6 +25,7 @@ class WSView(web.View):
             await self.ws.send_json(await self.handle(message.data, {}))
 
     async def handle(self, data, headers):
+        print("wsview handle")
         raise NotImplementedError
 
 
@@ -50,6 +51,7 @@ class JSONRPCView(web.View):
     }
 
     def login_required(coroutine):
+        print("loin_req")
         async def wrapper(self, **params):
             db_client = self.request.app["database"]
             

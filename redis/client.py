@@ -9,7 +9,7 @@ class RedisClient:
         self.port = port
         self.connection = None
 
-    async def connect(self, poolsize=1):
+    async def connect(self, poolsize=10): # poolsize ?
         self.connection = await asyncio_redis.Pool.create(
             host=self.host,
             port=self.port,
