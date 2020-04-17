@@ -13,7 +13,7 @@ STATE_IS_ALARM = 2
 
 
 class WSOPCView(JSONRPCView, WSView):
-    async def state(self, item, temperature, set_point, state):
+    async def state(self, item, temperature, set_point, state, wdt):
         self.request.app["ws_opc_client"] = self.ws
 
         db_client = self.request.app["database"]
@@ -29,7 +29,7 @@ class WSOPCView(JSONRPCView, WSView):
             set_point=set_point,
             state=state,
         )
-
+        self.request.app["watchdog_timer"] = wdt
         return "ok", None
 
 
@@ -38,29 +38,53 @@ class WSClientView(JSONRPCView, WSView):
     async def state(self):
         db_client = self.request.app["database"]
         redis_client = self.request.app["redis"]
-
-        result = []
+        result = {"CKT":[], "plc_client_wdt": self.request.app["watchdog_timer"]}
+        # result = []
         for cooler in db_client.get_coolers():
+            pack = {
+                "id": cooler.id,
+                "description": cooler.description,
+                "pv": -123, 
+                "sp": -123, 
+                "is_reg_on": 0, 
+                "is_pv_fault": 0,
+                "is_reg_alarm": 0,
+            }
             data = await redis_client.get_cooler_state(cooler_id=cooler.id)
             if data:
-                result.append({
-                    "id": cooler.id,
-                    "description": cooler.description,
-                    "pv": data["temperature"], 
-                    "sp": data["set_point"], 
-                    "is_reg_on": is_set(data["state"], STATE_IS_ON), 
-                    "is_pv_fault": is_set(data["state"], STATE_IS_FAULT),
-                    "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
-                })
+                pack["pv"] = data["temperature"]
+                pack["sp"] = data["set_point"]
+                pack["is_reg_on"] = is_set(data["state"], STATE_IS_ON),
+                pack["is_pv_fault"] = is_set(data["state"], STATE_IS_FAULT)
+                pack["is_reg_alarm"] = is_set(data["state"], STATE_IS_ALARM)
 
+            result["CKT"].append(pack)
         return result, None
 
     @JSONRPCView.login_required
-    async def command(self, command, params):
+    async def command(self, id, switch):
+        print("command")
         ws = self.request.app["ws_opc_client"]
-        data = {"test_data": "post"}
-        await ws.send_json({"CKT": 1, "plc_client_wdt": 123})
+        pack = {"jsonrpc": "2.0", "method": "command", 
+                "params": {
+                    "id" : id, 
+                    "switch" : switch}, 
+                "id": 1}
+        await ws.send_json(pack)
+        
+        return "ok", None
 
+    @JSONRPCView.login_required
+    async def set_point(self, id, set_point):
+        print("set_point")
+        ws = self.request.app["ws_opc_client"]
+        pack = {"jsonrpc": "2.0", "method": "set_point", 
+                "params": {
+                    "id" : id, 
+                    "set_point" : set_point}, 
+                "id": 1}
+        await ws.send_json(pack)
+        
         return "ok", None
 
     @JSONRPCView.login_required
@@ -96,69 +120,6 @@ class APIClientView(JSONRPCView, HTTPView):
 class IndexView(web.View):
     async def get(self):
         return web.FileResponse("static/index.html")
-
-
-class CoolerAllStatesView(web.View):
-    async def get(self):
-        db_client = self.request.app["database"]
-        redis_client = self.request.app["redis"]
-
-        CKT = []
-        for cooler in db_client.get_coolers():
-            data = await redis_client.get_cooler_state(cooler_id=cooler.id)
-            if data:
-                CKT.append({
-                    "id": cooler.id,
-                    "pv": data["temperature"], 
-                    "sp": data["set_point"], 
-                    "is_reg_on": is_set(data["state"], STATE_IS_ON), 
-                    "is_pv_fault": is_set(data["state"], STATE_IS_FAULT),
-                    "is_reg_alarm": is_set(data["state"], STATE_IS_ALARM),
-                })
-        all_statuses = json.dumps({"CKT": CKT, "plc_client_wdt": 123})
-        return web.Response(text=all_statuses)
-
-
-class CoolerCommandView(web.View):
-    async def get(self):
-        for i in range(12):
-            cmd_key = 'cmd'+str(i + 1)
-            val_key = 'val'+str(i + 1)
-            if cmd_key in self.request.rel_url.query.keys():
-                if self.request.rel_url.query[cmd_key] == "YOn":
-                    await self._send_ws_command(
-                                command="YOn",
-                                target=f"CKT{i+1}",
-                            )
-                    #         cur_cooler.YOn()
-                    return web.Response(text='YOn')
-                if self.request.rel_url.query[cmd_key] == "YOff":
-                    await self._send_ws_command(
-                                command="YOff",
-                                target=f"CKT{i+1}",
-                            )
-                    #         cur_cooler.YOff()
-                    return web.Response(text='YOff')
-            if val_key in self.request.rel_url.query.keys():
-                # cur_cooler.SetSP(self.request.rel_url.query['val'+ str(i)])
-                # await self._send_ws_command(
-                #         command="set_sp",
-                #         value=cur_cooler.sp,
-                #         target=cur_cooler.name,
-                #     )
-                return web.Response(text='val')
-
-
-    async def _send_ws_command(self, **data):
-        # if not self._opc_clients:
-        #     return
-        # data["type"] = "command"
-        # print(data)
-        # coros = [ws.send_json(data) for ws in self._opc_clients]
-        # await asyncio.gather(*coros, return_exceptions=True)
-        ws = self.request.app["ws_opc_client"]
-        if ws:
-            ws.send_json(data)
 
     # async def _simulate_commands(self):
     #     import random

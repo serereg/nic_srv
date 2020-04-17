@@ -40,7 +40,7 @@ function handler_ws(event) {
 	// console.log("GET MESSAGE: " + event.data)
 	// Логика обновления данных
 
-	try {
+	// try {
 		let pv_html = new Array(12)
 		let sp_html = new Array(12)
 		let is_reg_on_html = new Array(12)
@@ -48,21 +48,21 @@ function handler_ws(event) {
 		let is_reg_alarm_html = new Array(12)
 		let plc_client_wdt = 0
 		// parsing
-		for (var i = 0; i < 8; i++) {
-			pv_html[i] = parseFloat(pars[i].pv)
-			sp_html[i] = parseFloat(pars[i].sp)
-			is_reg_on_html[i] = pars[i].is_reg_on
-			is_pv_fault_html[i] = pars[i].is_pv_fault
-			is_reg_alarm_html[i] = pars[i].is_reg_alarm
+		for (var i = 0; i < 12; i++) {
+			pv_html[i] = parseFloat(pars.CKT[i].pv)
+			sp_html[i] = parseFloat(pars.CKT[i].sp)
+			is_reg_on_html[i] = pars.CKT[i].is_reg_on
+			is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
+			is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
 		}
 		plc_client_wdt = pars.plc_client_wdt
 		
 		//console.log(pars)
 
-		for (var i = 0; i < 8; i++) {
+		for (var i = 0; i < 12; i++) {
 			var num = i+1
 
-			document.getElementById("description_plate"+num.toString()).value = pars[i].description
+			document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
 			
 			document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
 			document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
@@ -92,7 +92,7 @@ function handler_ws(event) {
 		}
 		// TODO: tempereture fault analyse
 		var index = parseInt(document.getElementById("unitn").value, 10)-1;
-		document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+		// document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
 		if (is_reg_on_html[index]=="True")
 		{
 			document.getElementById("CmdOn").className = "w3-button w3-green";
@@ -104,10 +104,10 @@ function handler_ws(event) {
 			document.getElementById("CmdOff").className = "w3-button w3-black";
 		}
 		
-		print_console("Обмен c контроллером (количество посылок): "+plc_client_wdt);
-	} catch(exception) {
-		document.getElementById("write_sp").value = "exception";
-	};
+		print_console(plc_client_wdt + ": посылок от контроллера");
+	// } catch(exception) {
+	// 	document.getElementById("write_sp").value = "exception";
+	// };
 }
 
 function send_ws(method, params) {
@@ -242,53 +242,26 @@ function keypressfield(key)
 
 function cmdon()
 {
-    var params = "?cmd"+document.getElementById("unitn").value+"=YOn";
-	var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/command'+params,true);
-	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-	request.send("");
+	send_ws("command", {
+		"id": parseInt(document.getElementById("unitn").value, 10),
+		"switch": "YOn"
+	})
 }
 
 function cmdoff()
 {
-    var params = "?cmd"+document.getElementById("unitn").value+"=YOff";
-	var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/command'+params,true);
-	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-	request.send("");
+	send_ws("command", {
+		"id": parseInt(document.getElementById("unitn").value, 10),
+		"switch": "YOff"
+	})
 }
 
 function awrite()
 {
-    print_console("Запрос инициирован...");
-    
-    var params = "?val"+document.getElementById("unitn").value+"=" + document.getElementById("write_sp").value;
-    
-	//alert(params);
-	
-    var request = new XMLHttpRequest();
-    request.open('GET',document.location.origin+'/command'+params,true);
-    request.addEventListener('readystatechange', function() {   	        
-        
-        if(request.readyState == 4)
-        {
-        	if(request.status==200)
-        	{
-	            print_console("Обмен завершен успешно.");
-        	}
-        	else
-        	{
-	            print_console("Ошибка:" + request.status);
-        	}
-        }
-
-       });
-   	request.setRequestHeader("Pragma", "no-cache");
-	request.setRequestHeader("Cache-Control", "no-cache");
-
-    request.send("");
+    send_ws("set_point", {
+		"id": parseInt(document.getElementById("unitn").value, 10),
+		"set_point": document.getElementById("write_sp").value
+	})
 }
 
 
