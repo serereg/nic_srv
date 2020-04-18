@@ -3,7 +3,7 @@ import logging
 
 from aiohttp import web
 
-from .utils import HTTPView, JSONRPCView, WSView
+from .utils import HTTPView, JSONRPCView, WSView, is_set
 
 
 NUMBER_OF_COOLERS = 12
@@ -132,10 +132,3 @@ class IndexView(web.View):
     #         logger.info("sending command {} to {} clients", cmd, len(_opc_clients))
     #         await asyncio.gather(*[ws.send_json(cmd) for ws in _opc_clients])
 
-
-def is_set(x, n):
-    try:
-        r = (int(x) & 1 << int(n)) != 0
-    except Exception:
-        r = True
-    return r

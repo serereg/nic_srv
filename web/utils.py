@@ -86,3 +86,11 @@ class JSONRPCView(web.View):
             response["error"] = "Server error"
         finally:
             return response
+
+
+def is_set(x, n):
+    try:
+        r = (int(x) & 1 << int(n)) != 0
+    except Exception:
+        r = True
+    return r

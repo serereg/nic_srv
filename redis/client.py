@@ -2,6 +2,10 @@ import asyncio_redis
 import logging
 import datetime
 
+STATE_IS_ON = 0
+STATE_IS_FAULT = 1
+STATE_IS_ALARM = 2
+
 
 class RedisClient:
     def __init__(self, host, port):
@@ -37,14 +41,20 @@ class RedisClient:
 
     async def get_cooler_state(self, cooler_id):
         data = {}
-        temperature = await self.connection.get(f"cooler:{cooler_id}:last:temperature")
-        if temperature:
-            data["temperature"] = float(temperature)
-        set_point = await self.connection.get(f"cooler:{cooler_id}:last:set_point")
-        if set_point:
-            data["set_point"] = int(set_point)
-        state = await self.connection.get(f"cooler:{cooler_id}:last:state")
-        if state:
-            data["state"] = int(state)
-        
+        try:
+            temperature = await self.connection.get(f"cooler:{cooler_id}:last:temperature")
+            if temperature:
+                data["temperature"] = float(temperature)
+            set_point = await self.connection.get(f"cooler:{cooler_id}:last:set_point")
+            if set_point:
+                data["set_point"] = float(set_point)
+            state = await self.connection.get(f"cooler:{cooler_id}:last:state")
+            if state:
+                data["state"] = int(state)
+        except Exception as e:
+            print(e)
+            data["temperature"] = -121.1
+            data["set_point"] = -131.1
+            data["state"] = STATE_IS_FAULT
+
         return data
