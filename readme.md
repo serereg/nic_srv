@@ -1,6 +1,6 @@
 # IoT SCADA
 
-## The project consist of 
+## The project consists of 
 
 1. Application-Server,
 
