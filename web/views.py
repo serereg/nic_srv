@@ -93,7 +93,7 @@ class WSClientView(JSONRPCView, WSView):
         
         cooler = db_client.get_cooler(id=id)
         if cooler is None:
-            return None, f"No cooler with name '{item}' in database"
+            return None, f"No cooler with id '{id}' in database"
         cooler.description = description
         db_client.session.commit()
 

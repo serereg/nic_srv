@@ -54,6 +54,7 @@ class WS:
                     "temperature": c_item,
                     "set_point": c_item,
                     "state": 11,
+                    "wdt": 1,
                 },
             }
             await self.ws.send_json(data)
