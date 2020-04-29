@@ -46,16 +46,16 @@ class WSClientView(JSONRPCView, WSView):
                 "description": cooler.description,
                 "pv": -123, 
                 "sp": -123, 
-                "is_reg_on": 0, 
-                "is_pv_fault": 0,
-                "is_reg_alarm": 0,
+                "is_reg_on": False, 
+                "is_pv_fault": False,
+                "is_reg_alarm": False,
             }
             data = await redis_client.get_cooler_state(cooler_id=cooler.id)
             if data:
                 pack["pv"] = data["temperature"]
                 pack["sp"] = data["set_point"]
-                pack["is_reg_on"] = is_set(data["state"], STATE_IS_ON),
-                pack["is_pv_fault"] = is_set(data["state"], STATE_IS_FAULT)
+                pack["is_reg_on"] = is_set(data["state"], STATE_IS_ON)
+                pack["is_pv_fault"] = False  # is_set(data["state"], STATE_IS_FAULT)
                 pack["is_reg_alarm"] = is_set(data["state"], STATE_IS_ALARM)
 
             result["CKT"].append(pack)
