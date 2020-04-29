@@ -40,7 +40,7 @@ function send_ws(method, params) {
 	}
 }
 
-function handler_ws(event) {
+function ws_handler(event) {
 	let data = JSON.parse(event.data)
 	ws_handler[requests[data["id"]]](data)
 }
