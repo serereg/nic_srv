@@ -36,8 +36,9 @@ if __name__ == '__main__':
     REDIS_PORT = int(os.environ["REDIS_PORT"])
 
     logger = logging.getLogger(__name__)
+    logger.info("Starting server...")
+    
     app = web.Application()
-
     loop = asyncio.get_event_loop()
     
     redis_client = loop.run_until_complete(redis_connect(REDIS_HOST, REDIS_PORT))
