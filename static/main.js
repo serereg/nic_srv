@@ -59,7 +59,7 @@ function ws_get_state() {
 	send_ws("state", {})
 
 	if (localStorage.getItem("token")) {
-		setTimeout(get_state, 1000)
+		setTimeout(ws_get_state, 1000)
 	} else {
 		document.getElementById("auth").style.display = "block"
 		document.getElementById("panel").style.display = "none"
@@ -155,7 +155,7 @@ function auth() {
 			localStorage.setItem("token", data.result.token)
 			document.getElementById("auth").style.display = "none"
 			document.getElementById("panel").style.display = "block"
-			get_state()
+			ws_get_state()
 		}
 	})
 }
@@ -295,7 +295,7 @@ function onload() {
 	if (token) {
 		document.getElementById("auth").style.display = "none"
 		document.getElementById("panel").style.display = "block"
-		get_state()
+		ws_get_state()
 	} else {
 		document.getElementById("auth").style.display = "block"
 		document.getElementById("panel").style.display = "none"
