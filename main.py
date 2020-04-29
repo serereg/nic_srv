@@ -39,11 +39,16 @@ if __name__ == '__main__':
     app = web.Application()
 
     loop = asyncio.get_event_loop()
+    
     redis_client = loop.run_until_complete(redis_connect(REDIS_HOST, REDIS_PORT))
+    logger.info(f"Connect to redis {REDIS_HOST}:{REDIS_PORT}")
+    
     db_client = db_connect(
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
         Base,
     )
+    logger.info(f"Connect to database {DB_HOST}:{DB_PORT}/{DB_NAME}")
+
     app["redis"] = redis_client
     app["database"] = db_client
 
@@ -51,4 +56,6 @@ if __name__ == '__main__':
         app.router.add_route(method, path, view)
     app.router.add_static("/static", "static")
 
+    logger.info(f"Running app on :80")
     web.run_app(app, port=80)
+    logger.info(f"App closed.")
