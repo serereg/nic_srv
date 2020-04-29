@@ -28,7 +28,10 @@ function jsonrpc(method, params) {
 
 function get_ws(event) {
 	let data = JSON.parse(event.data)
-	ws_handlers[requests[data["id"]]](data)
+	handler = ws_handlers[requests[data["id"]]]
+	if (handler) {
+		handler(data)
+	}
 }
 
 function send_ws(method, params) {
@@ -44,8 +47,6 @@ function send_ws(method, params) {
 		glob_socket.send(jsonrpc(method, params))
 	}
 }
-
-
 
 function send_http(method, params, handler) {
 	fetch("http://"+window.location.host+"/api/client", { 
@@ -69,26 +70,29 @@ function ws_get_state() {
 }
 
 function ws_handle_get_state(data) {
+	data = data.result
 	let pv_html = new Array(12)
 	let sp_html = new Array(12)
+	let descriptions = new Array(12)
 	let is_reg_on_html = new Array(12)
 	let is_pv_fault_html = new Array(12)
 	let is_reg_alarm_html = new Array(12)
 	let plc_client_wdt = 0
 
 	for (let i = 0; i < 12; i++) {
-		pv_html[i] = parseFloat(data.CKT[i].pv)
-		sp_html[i] = parseFloat(data.CKT[i].sp)
-		is_reg_on_html[i] = data.CKT[i].is_reg_on
-		is_pv_fault_html[i] = data.CKT[i].is_pv_fault
-		is_reg_alarm_html[i] = data.CKT[i].is_reg_alarm
+		pv_html[data.CKT[i].id - 1] = parseFloat(data.CKT[i].pv)
+		sp_html[data.CKT[i].id - 1] = parseFloat(data.CKT[i].sp)
+		descriptions[data.CKT[i].id - 1] = data.CKT[i].description
+		is_reg_on_html[data.CKT[i].id - 1] = data.CKT[i].is_reg_on
+		is_pv_fault_html[data.CKT[i].id - 1] = data.CKT[i].is_pv_fault
+		is_reg_alarm_html[data.CKT[i].id - 1] = data.CKT[i].is_reg_alarm
 	}
 	plc_client_wdt = data.plc_client_wdt
 		
 	for (let i = 0; i < 12; i++) {
 		let num = i+1
 
-		document.getElementById("description_plate"+num.toString()).value = data.CKT[i].description //
+		document.getElementById("description_plate"+num.toString()).value = descriptions[i]
 
 		document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
 		document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
