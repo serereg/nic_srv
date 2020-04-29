@@ -2,7 +2,7 @@
 var glob_socket = null
 var glob_request_id = 0
 var requests = {}
-
+var ws_handlers = {}
 
 // UTILS
 function jsonrpc(method, params) {
@@ -22,92 +22,8 @@ function jsonrpc(method, params) {
 	for (key in params) {
 		data.params[key] = params[key]
 	}
+	requests[glob_request_id] = method
 	return JSON.stringify(data)
-}
-
-function send_http(method, params, handler) {
-	fetch("http://"+window.location.host+"/api/client", { 
-		method: "POST",
-		body: jsonrpc(method, params),
-	})
-	.then(response => response.json())
-	.then(data => {handler(data)})
-}
-
-function handler_ws(event) {
-	let pars = JSON.parse(event.data).result
-	console.log(pars)
-	// console.log("GET MESSAGE: " + event.data)
-	// Логика обновления данных
-
-	// try {
-		let pv_html = new Array(12)
-		let sp_html = new Array(12)
-		let is_reg_on_html = new Array(12)
-		let is_pv_fault_html = new Array(12)
-		let is_reg_alarm_html = new Array(12)
-		let plc_client_wdt = 0
-		// parsing
-		for (var i = 0; i < 12; i++) {
-			pv_html[i] = parseFloat(pars.CKT[i].pv)
-			sp_html[i] = parseFloat(pars.CKT[i].sp)
-			is_reg_on_html[i] = pars.CKT[i].is_reg_on
-			is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
-			is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
-		}
-		plc_client_wdt = pars.plc_client_wdt
-		
-		//console.log(pars)
-
-		for (var i = 0; i < 12; i++) {
-			var num = i+1
-
-			document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
-			
-			document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
-			document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
-			if (is_reg_on_html[i]=="True")
-			{
-				document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
-			}
-			else
-			{
-				document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
-			}
-			if (is_pv_fault_html[i]=="True")
-			{
-				document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
-			}
-			else
-			{
-				if (is_reg_alarm_html[i]=="True")
-				{
-					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
-				}
-				else
-				{
-					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
-				}
-			}
-		}
-		// TODO: tempereture fault analyse
-		var index = parseInt(document.getElementById("unitn").value, 10)-1;
-		// document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
-		if (is_reg_on_html[index]=="True")
-		{
-			document.getElementById("CmdOn").className = "w3-button w3-green";
-			document.getElementById("CmdOff").className = "w3-button w3-green";
-		}
-		else
-		{
-			document.getElementById("CmdOn").className = "w3-button w3-black";
-			document.getElementById("CmdOff").className = "w3-button w3-black";
-		}
-		
-		print_console(plc_client_wdt + ": посылок от контроллера");
-	// } catch(exception) {
-	// 	document.getElementById("write_sp").value = "exception";
-	// };
 }
 
 function send_ws(method, params) {
@@ -124,26 +40,107 @@ function send_ws(method, params) {
 	}
 }
 
+function handler_ws(event) {
+	let data = JSON.parse(event.data)
+	ws_handler[requests[data["id"]]](data)
+}
 
-function onload() {
-	let token = localStorage.getItem("token")
-	if (token) {
-		document.getElementById("auth").style.display = "none"
-		document.getElementById("panel").style.display = "block"
-		get_state()
+function send_http(method, params, handler) {
+	fetch("http://"+window.location.host+"/api/client", { 
+		method: "POST",
+		body: jsonrpc(method, params),
+	})
+	.then(response => response.json())
+	.then(data => {handler(data)})
+}
+
+// WS
+function ws_get_state() {
+	send_ws("state", {})
+
+	if (localStorage.getItem("token")) {
+		setTimeout(get_state, 1000)
 	} else {
 		document.getElementById("auth").style.display = "block"
 		document.getElementById("panel").style.display = "none"
 	}
-
-	// function send() {
-	// 	if (document.getElementById("iseditable").value == "0") {
-	// 		socket.send(JSON.stringify({"method": "state"}))
-	// 		setTimeout(send, 1000)
-	// 	}
-	// }
 }
 
+function ws_handle_get_state(data) {
+	let pv_html = new Array(12)
+	let sp_html = new Array(12)
+	let is_reg_on_html = new Array(12)
+	let is_pv_fault_html = new Array(12)
+	let is_reg_alarm_html = new Array(12)
+	let plc_client_wdt = 0
+
+	for (let i = 0; i < 12; i++) {
+		pv_html[i] = parseFloat(data.CKT[i].pv)
+		sp_html[i] = parseFloat(data.CKT[i].sp)
+		is_reg_on_html[i] = data.CKT[i].is_reg_on
+		is_pv_fault_html[i] = data.CKT[i].is_pv_fault
+		is_reg_alarm_html[i] = data.CKT[i].is_reg_alarm
+	}
+	plc_client_wdt = data.plc_client_wdt
+		
+	for (let i = 0; i < 12; i++) {
+		let num = i+1
+
+		document.getElementById("description_plate"+num.toString()).value = data.CKT[i].description //
+
+		document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
+		document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
+		if (is_reg_on_html[i]) {
+			document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
+		} else {
+			document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
+		}
+		if (is_pv_fault_html[i]) {
+			document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
+		} else if (is_reg_alarm_html[i]) {
+			document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
+		} else {
+			document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large"
+		}
+	}
+		
+	let index = parseInt(document.getElementById("unitn").value, 10)-1;
+	// document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+	if (is_reg_on_html[index]) {
+		document.getElementById("CmdOn").className = "w3-button w3-green";
+		document.getElementById("CmdOff").className = "w3-button w3-green";
+	} else {
+		document.getElementById("CmdOn").className = "w3-button w3-black";
+		document.getElementById("CmdOff").className = "w3-button w3-black";
+	}
+	
+	print_console(plc_client_wdt + ": посылок от контроллера");
+	// } catch(exception) {
+	// 	document.getElementById("write_sp").value = "exception";
+	// };
+}
+
+function ws_set_description() {
+	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
+	
+	pack = {
+		"method": "set_description",
+		"params": {
+			"id": parseInt(document.getElementById("unitn_desc").value, 10),
+			"description": document.getElementById("ckt_description").value, 
+		},
+	}
+	//console.log(pack)
+	//glob_socket.send(JSON.stringify(pack))
+	send_ws("set_description", {
+			"id": parseInt(document.getElementById("unitn_desc").value, 10),
+			"description": document.getElementById("ckt_description").value, 
+		})
+}
+
+function ws_handle_set_description(data) {
+
+}
 
 // REQUESTS
 function auth() {
@@ -163,18 +160,7 @@ function auth() {
 	})
 }
 
-function get_state() {
-	send_ws("state", {})
-	console.log("SEND")
-
-	if (localStorage.getItem("token")) {
-		setTimeout(get_state, 1000)
-	} else {
-		document.getElementById("auth").style.display = "block"
-		document.getElementById("panel").style.display = "none"
-	}
-}
-
+// OTHER
 function print_console(text){
 	document.getElementById("status").value = text;
 }
@@ -301,20 +287,24 @@ function checkBoxEvent() {
 	}
 }
 
-function send_description() {
-	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
-	
-	pack = {
-		"method": "set_description",
-		"params": {
-			"id": parseInt(document.getElementById("unitn_desc").value, 10),
-			"description": document.getElementById("ckt_description").value, 
-		},
+function onload() {
+	ws_handlers["state"] = ws_handle_get_state
+	ws_handlers["set_description"] = ws_handle_set_description
+
+	let token = localStorage.getItem("token")
+	if (token) {
+		document.getElementById("auth").style.display = "none"
+		document.getElementById("panel").style.display = "block"
+		get_state()
+	} else {
+		document.getElementById("auth").style.display = "block"
+		document.getElementById("panel").style.display = "none"
 	}
-	//console.log(pack)
-	//glob_socket.send(JSON.stringify(pack))
-	send_ws("set_description", {
-			"id": parseInt(document.getElementById("unitn_desc").value, 10),
-			"description": document.getElementById("ckt_description").value, 
-		})
+
+	// function send() {
+	// 	if (document.getElementById("iseditable").value == "0") {
+	// 		socket.send(JSON.stringify({"method": "state"}))
+	// 		setTimeout(send, 1000)
+	// 	}
+	// }
 }

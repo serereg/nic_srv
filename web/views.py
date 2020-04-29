@@ -38,7 +38,7 @@ class WSClientView(JSONRPCView, WSView):
     async def state(self):
         db_client = self.request.app["database"]
         redis_client = self.request.app["redis"]
-        result = {"CKT":[], "plc_client_wdt": self.request.app["watchdog_timer"]}
+        result = {"CKT": [], "plc_client_wdt": self.request.app["watchdog_timer"]}
         # result = []
         for cooler in db_client.get_coolers():
             pack = {
