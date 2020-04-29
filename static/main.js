@@ -26,10 +26,15 @@ function jsonrpc(method, params) {
 	return JSON.stringify(data)
 }
 
+function get_ws(event) {
+	let data = JSON.parse(event.data)
+	ws_handlers[requests[data["id"]]](data)
+}
+
 function send_ws(method, params) {
 	if (!glob_socket || glob_socket.readyState > 1) {
 		glob_socket = new WebSocket("ws://"+window.location.host+"/ws/client")
-		glob_socket.onmessage = handler_ws
+		glob_socket.onmessage = get_ws
 	}
 	if (glob_socket.readyState == WebSocket.CONNECTING) {
 		glob_socket.onopen = function() {
@@ -40,10 +45,7 @@ function send_ws(method, params) {
 	}
 }
 
-function ws_handler(event) {
-	let data = JSON.parse(event.data)
-	ws_handler[requests[data["id"]]](data)
-}
+
 
 function send_http(method, params, handler) {
 	fetch("http://"+window.location.host+"/api/client", { 
