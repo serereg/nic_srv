@@ -41,6 +41,8 @@ function handler_ws(event) {
 	// Логика обновления данных
 
 	// try {
+	if (pars != null)
+	{
 		if (pars.hasOwnProperty("CKT"))
 		{
 			let pv_html = new Array(12)
@@ -108,7 +110,8 @@ function handler_ws(event) {
 			
 			print_console(plc_client_wdt + ": посылок от контроллера");
 		}
-	// } catch(exception) {
+	}
+// } catch(exception) {
 	// 	document.getElementById("write_sp").value = "exception";
 	// };
 }
@@ -132,7 +135,7 @@ function onload() {
 	// let token = localStorage.getItem("token")
 	let token = true
 	if (token) {
-		document.getElementById("auth").style.display = "none"
+		document.getElementById("auth").style.display = "block"
 		document.getElementById("panel").style.display = "block"
 		get_state()
 	} else {
