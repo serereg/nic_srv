@@ -129,7 +129,8 @@ function send_ws(method, params) {
 
 
 function onload() {
-	let token = localStorage.getItem("token")
+	// let token = localStorage.getItem("token")
+	let token = true
 	if (token) {
 		document.getElementById("auth").style.display = "none"
 		document.getElementById("panel").style.display = "block"
@@ -173,8 +174,9 @@ function get_state() {
 	if (localStorage.getItem("token")) {
 		setTimeout(get_state, 1000)
 	} else {
-		document.getElementById("auth").style.display = "block"
-		document.getElementById("panel").style.display = "none"
+		setTimeout(get_state, 1000)
+		// document.getElementById("auth").style.display = "block"
+		// document.getElementById("panel").style.display = "none"
 	}
 }
 
