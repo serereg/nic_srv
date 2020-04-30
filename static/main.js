@@ -66,8 +66,8 @@ function handler_ws(event) {
 
 				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
 				
-				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(2);
-				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(2);
+				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(1);
+				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(1);
 				if (is_reg_on_html[i]==true)
 				{
 					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
@@ -94,7 +94,7 @@ function handler_ws(event) {
 			}
 			// TODO: tempereture fault analyse
 			var index = parseInt(document.getElementById("unitn").value, 10)-1;
-			// document.getElementById("write_sp").value = sp_html[index].toFixed(2); //request.responseText;
+			// document.getElementById("write_sp").value = sp_html[index].toFixed(1); //request.responseText;
 			if (is_reg_on_html[index]==true)
 			{
 				document.getElementById("CmdOn").className = "w3-button w3-green";
