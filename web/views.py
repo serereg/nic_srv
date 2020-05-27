@@ -101,7 +101,7 @@ class WSClientView(JSONRPCView, WSView):
 
 
 class APIClientView(JSONRPCView, HTTPView):
-    async def login(self, username, password):
+    async def login(self, username, password, token):
         db_client = self.request.app["database"]
         user = db_client.get_user(username=username, password=password)
         if user is None:

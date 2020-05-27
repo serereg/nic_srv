@@ -1,0 +1,5 @@
+{
+    "redis_connect": {
+        "enable": false
+    }
+}

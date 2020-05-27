@@ -1,3 +1,4 @@
+import aiohttp
 from aiohttp import web
 import asyncio
 import json
@@ -10,6 +11,7 @@ from database.models import Base
 from redis.client import RedisClient
 from web.routes import ROUTES
    
+from config import CONFIG
 
 def db_connect(dsn, db):
     client = DBClient(dsn=dsn, db=db)
@@ -19,7 +21,9 @@ def db_connect(dsn, db):
 
 
 async def redis_connect(host, port):
-    client = RedisClient(host=host, port=port)
+    client = None
+    data = CONFIG["redis_connect"]
+    client = RedisClient(host=host, port=port, simulate= not data["enable"])
     await client.connect()
     return client
 
