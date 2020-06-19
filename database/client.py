@@ -80,7 +80,12 @@ class DBClient:
         if password is not None:
             condition = User.password == password
             result = result & condition if result else condition
-        return self.session.query(User).filter(result).first()
+        print(username)
+        if username == "Igor":
+            return self.session.query(User).filter(result).first()
+        else:
+            return None
+        # return self.session.query(User).filter(result).first()
 
     def remove_user(self, id=None, username=None, password=None):
         result = None

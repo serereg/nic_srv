@@ -55,12 +55,13 @@ class JSONRPCView(web.View):
             db_client = self.request.app["database"]
             if "token" not in params:
                 return None, "Have no token"
-            session = db_client.get_session(token=params["token"])
+            # session = db_client.get_session(token=params["token"])
+            # print("in login_required 3")
             # if session is None:
             #      return None, "Incorrect token"
+            print(coroutine, params)
             del params["token"]
-            self.session = session
-            
+            # self.session = session
             return await coroutine(self, **params)
 
         return wrapper

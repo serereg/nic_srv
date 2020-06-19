@@ -36,6 +36,7 @@ class WSOPCView(JSONRPCView, WSView):
 class WSClientView(JSONRPCView, WSView):
     @JSONRPCView.login_required
     async def state(self):
+        print("state")
         db_client = self.request.app["database"]
         redis_client = self.request.app["redis"]
         result = {"CKT":[], "plc_client_wdt": self.request.app["watchdog_timer"]}
@@ -89,6 +90,7 @@ class WSClientView(JSONRPCView, WSView):
 
     @JSONRPCView.login_required
     async def set_description(self, id, description):
+        print("description")
         db_client = self.request.app["database"]
         
         cooler = db_client.get_cooler(id=id)
@@ -101,20 +103,22 @@ class WSClientView(JSONRPCView, WSView):
 
 
 class APIClientView(JSONRPCView, HTTPView):
-    async def login(self, username, password, token):
+    async def login(self, username, password, token): #
+        print("login class APIClientView 1")
         db_client = self.request.app["database"]
         user = db_client.get_user(username=username, password=password)
+        
         if user is None:
             return None, "Incorrect username or password"
-
+        print("login class APIClientView 2")
         session = db_client.create_session(user)
 
         return {"token": session.token}, None
 
-    @JSONRPCView.login_required
-    async def logout(self):
-        self.session.delete()
-        self.request.app["database"].commit()
+    # @JSONRPCView.login_required
+    # async def logout(self):
+    #     self.session.delete()
+    #     self.request.app["database"].commit()
 
 
 class IndexView(web.View):

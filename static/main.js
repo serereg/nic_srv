@@ -1,141 +1,11 @@
-
-var glob_socket = null
-var glob_request_id = 0
-var requests = {}
-
-
-// UTILS
-function jsonrpc(method, params) {
-	let token = localStorage.getItem("token")
-	if (token != null) {
-		params.token = token
-	}
-	if (++glob_request_id < 0) {
-		glob_request_id = 1
-	}
-	let data = {
-		jsonrpc: "2.0",
-		method: method,
-		id: glob_request_id,
-		params: {},
-	}
-	for (key in params) {
-		data.params[key] = params[key]
-	}
-	return JSON.stringify(data)
-}
-
-function send_http(method, params, handler) {
-	fetch("http://"+window.location.host+"/api/client", { 
-		method: "POST",
-		body: jsonrpc(method, params),
-	})
-	.then(response => response.json())
-	.then(data => {handler(data)})
-}
-
-function handler_ws(event) {
-	let pars = JSON.parse(event.data).result
-	console.log(pars)
-	// console.log("GET MESSAGE: " + event.data)
-	// Логика обновления данных
-
-	// try {
-	if (pars != null)
-	{
-		if (pars.hasOwnProperty("CKT"))
-		{
-			let pv_html = new Array(12)
-			let sp_html = new Array(12)
-			let is_reg_on_html = new Array(12)
-			let is_pv_fault_html = new Array(12)
-			let is_reg_alarm_html = new Array(12)
-			let plc_client_wdt = 0
-			// parsing
-			for (var i = 0; i < 12; i++) {
-				pv_html[i] = parseFloat(pars.CKT[i].pv)
-				sp_html[i] = parseFloat(pars.CKT[i].sp)
-				is_reg_on_html[i] = pars.CKT[i].is_reg_on
-				is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
-				is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
-			}
-			plc_client_wdt = pars.plc_client_wdt
-			
-			//console.log(pars)
-
-			for (var i = 0; i < 12; i++) {
-				var num = i+1
-
-				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
-				
-				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(1);
-				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(1);
-				if (is_reg_on_html[i]==true)
-				{
-					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
-				}
-				else
-				{
-					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
-				}
-				if (is_pv_fault_html[i]==true)
-				{
-					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
-				}
-				else
-				{
-					if (is_reg_alarm_html[i]==true)
-					{
-						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
-					}
-					else
-					{
-						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
-					}
-				}
-			}
-			// TODO: tempereture fault analyse
-			var index = parseInt(document.getElementById("unitn").value, 10)-1;
-			// document.getElementById("write_sp").value = sp_html[index].toFixed(1); //request.responseText;
-			if (is_reg_on_html[index]==true)
-			{
-				document.getElementById("CmdOn").className = "w3-button w3-green";
-				document.getElementById("CmdOff").className = "w3-button w3-green";
-			}
-			else
-			{
-				document.getElementById("CmdOn").className = "w3-button w3-black";
-				document.getElementById("CmdOff").className = "w3-button w3-black";
-			}
-			
-			print_console(plc_client_wdt + ": посылок от контроллера");
-		}
-	}
-// } catch(exception) {
-	// 	document.getElementById("write_sp").value = "exception";
-	// };
-}
-
-function send_ws(method, params) {
-	if (!glob_socket || glob_socket.readyState > 1) {
-		glob_socket = new WebSocket("ws://"+window.location.host+"/ws/client")
-		glob_socket.onmessage = handler_ws
-	}
-	if (glob_socket.readyState == WebSocket.CONNECTING) {
-		glob_socket.onopen = function() {
-			glob_socket.send(jsonrpc(method, params))
-		}
-	} else {
-		glob_socket.send(jsonrpc(method, params))
-	}
-}
-
+var glob_auth = false
 
 function onload() {
-	// let token = localStorage.getItem("token")
-	let token = true
-	if (token) {
-		document.getElementById("auth").style.display = "block"
+	let token = localStorage.getItem("token")
+	// let token = true
+	if (glob_auth) {
+	// if (token) {
+		document.getElementById("auth").style.display = "none"
 		document.getElementById("panel").style.display = "block"
 		get_state()
 	} else {
@@ -160,8 +30,10 @@ function auth() {
 	send_http("login", {
 		username: username,
 		password: password,
+		token: ""
 	}, (data) => {
 		if (data.result) {
+			glob_auth = true
 			localStorage.setItem("token", data.result.token)
 			document.getElementById("auth").style.display = "none"
 			document.getElementById("panel").style.display = "block"
@@ -172,14 +44,16 @@ function auth() {
 
 function get_state() {
 	send_ws("state", {})
-	console.log("SEND")
+	console.log("get_state() SEND")
 
-	if (localStorage.getItem("token")) {
+	// if (localStorage.getItem("token")) {
+	if (glob_auth) {
+		showBusyTank();
 		setTimeout(get_state, 1000)
 	} else {
-		setTimeout(get_state, 1000)
-		// document.getElementById("auth").style.display = "block"
-		// document.getElementById("panel").style.display = "none"
+		//setTimeout(get_state, 1000)
+		document.getElementById("auth").style.display = "block"
+		document.getElementById("panel").style.display = "none"
 	}
 }
 
@@ -294,13 +168,25 @@ function setunit(unit)
 function checkBoxEvent() {
 	if (document.getElementById('busyTank').checked)
 	{
+		setCookie("show_busy_tank","true",10);
+	} else 
+	{
+		setCookie("show_busy_tank","false",10);
+	}
+}
 
+function showBusyTank()
+{
+	let show = getCookie("show_busy_tank")
+	if (show == "true")
+	{
+		document.getElementById('busyTank').checked = true;
 		Ach = document.getElementsByClassName("w3-light-grey");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'none';
 		Ach = document.getElementsByClassName("w3-green");
 		for (i = 0; i < Ach.length; i++) Ach[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
-	} else {
-
+	} else {	
+		document.getElementById('busyTank').checked = false;	
 		Ach1 = document.getElementsByClassName("w3-light-grey");
 		for (i = 0; i < Ach1.length; i++) Ach1[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = '';
 
@@ -325,4 +211,97 @@ function send_description() {
 			"id": parseInt(document.getElementById("unitn_desc").value, 10),
 			"description": document.getElementById("ckt_description").value, 
 		})
+}
+
+
+function handler_ws(event) {
+	let pars = JSON.parse(event.data).result
+	console.log(pars)
+	// console.log("GET MESSAGE: " + event.data)
+	// Логика обновления данных
+
+	// try {
+	if (pars != null)
+	{
+		if (pars.hasOwnProperty("CKT"))
+		{
+			let pv_html = new Array(12)
+			let sp_html = new Array(12)
+			let is_reg_on_html = new Array(12)
+			let is_pv_fault_html = new Array(12)
+			let is_reg_alarm_html = new Array(12)
+			let plc_client_wdt = 0
+			// parsing
+			pars.CKT.forEach(element => {
+				let ckt_num = element.id - 1
+				pv_html[ckt_num] = parseFloat(element.pv)
+				sp_html[ckt_num] = parseFloat(element.sp)
+				is_reg_on_html[ckt_num] = element.is_reg_on
+				is_pv_fault_html[ckt_num] = element.is_pv_fault
+				is_reg_alarm_html[ckt_num] = element.is_reg_alarm
+			});
+			// for (var i = 0; i < 12; i++) {
+			// for (var i = 0; i < 1; i++) {
+			// 	pv_html[i] = parseFloat(pars.CKT[i].pv)
+			// 	sp_html[i] = parseFloat(pars.CKT[i].sp)
+			// 	is_reg_on_html[i] = pars.CKT[i].is_reg_on
+			// 	is_pv_fault_html[i] = pars.CKT[i].is_pv_fault
+			// 	is_reg_alarm_html[i] = pars.CKT[i].is_reg_alarm
+			// }
+			plc_client_wdt = pars.plc_client_wdt
+			
+			//console.log(pars)
+
+			// for (var i = 0; i < 12; i++) {
+			for (var i = 0; i < 1; i++) {
+				var num = i+1
+
+				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
+				
+				document.getElementById("pv"+num.toString()).value = pv_html[i].toFixed(1);
+				document.getElementById("sp"+num.toString()).value = sp_html[i].toFixed(1);
+				if (is_reg_on_html[i]==true)
+				{
+					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-green";
+				}
+				else
+				{
+					document.getElementById("plate"+num.toString()).className = "w3-container w3-card-4 " + " w3-light-grey";
+				}
+				if (is_pv_fault_html[i]==true)
+				{
+					document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-black";
+				}
+				else
+				{
+					if (is_reg_alarm_html[i]==true)
+					{
+						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large" + " w3-red";
+					}
+					else
+					{
+						document.getElementById("pv"+num.toString()).className = "w3-input w3-border w3-round-large";
+					}
+				}
+			}
+			// TODO: tempereture fault analyse
+			var index = parseInt(document.getElementById("unitn").value, 10)-1;
+			// document.getElementById("write_sp").value = sp_html[index].toFixed(1); //request.responseText;
+			if (is_reg_on_html[index]==true)
+			{
+				document.getElementById("CmdOn").className = "w3-button w3-green";
+				document.getElementById("CmdOff").className = "w3-button w3-green";
+			}
+			else
+			{
+				document.getElementById("CmdOn").className = "w3-button w3-black";
+				document.getElementById("CmdOff").className = "w3-button w3-black";
+			}
+			
+			print_console(plc_client_wdt + ": посылок от контроллера");
+		}
+	}
+// } catch(exception) {
+	// 	document.getElementById("write_sp").value = "exception";
+	// };
 }
