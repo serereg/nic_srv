@@ -252,8 +252,8 @@ function handler_ws(event) {
 			
 			//console.log(pars)
 
-			// for (var i = 0; i < 12; i++) {
-			for (var i = 0; i < 1; i++) {
+			for (var i = 0; i < 12; i++) {
+			// for (var i = 0; i < 1; i++) {
 				var num = i+1
 
 				document.getElementById("description_plate"+num.toString()).value = pars.CKT[i].description //
