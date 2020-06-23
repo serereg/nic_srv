@@ -31,7 +31,7 @@ class RedisClient:
 
     async def set_cooler_state(self, cooler_id, temperature, set_point, state):
         if self.simulate:
-            self.coolers_data["cooler_id"] = {"temperature":temperature,
+            self.coolers_data[cooler_id] = {"temperature":temperature,
                 "set_point":set_point,
                 "state":state}
             return
@@ -58,6 +58,11 @@ class RedisClient:
                 data["temperature"] = float(self.coolers_data[cooler_id]["temperature"])
                 data["set_point"] = float(self.coolers_data[cooler_id]["set_point"])
                 data["state"] = int(self.coolers_data[cooler_id]["state"])
+
+                print (data["temperature"])
+                print (data["set_point"])
+                print (data["state"])
+
             else:
                 temperature = await self.connection.get(f"cooler:{cooler_id}:last:temperature")
                 if temperature:
