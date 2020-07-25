@@ -453,7 +453,8 @@
 						<div class="w3-display-middle w3-container">
 							<div class="w3-container w3-card-4 w3-light-grey">
 								<div accept-charset="utf-8">
-									<h2>ЦКТ №<input type="number" list="coolers" name = "cur_ckt" min="1" max="12" id="unitn_desc"/>:</h2>
+									<h2>ЦКТ №<input type="number" list="coolers" name = "cur_ckt" min="1" max="12" id="unitn_desc" 
+										onchange="fill_default_description()"/>:</h2>
 									
 									<p><label for="ckt_description">Изменить описание:</label></p>
 									<textarea class="form-control w3-border w3-round-large" rows="5" name="ckt_description" type="text" id="ckt_description" maxlength="200"></textarea>

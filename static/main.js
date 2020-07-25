@@ -195,6 +195,14 @@ function showBusyTank()
 	}
 }
 
+
+function fill_default_description() {
+	document.getElementById('ckt_description').value = 
+	document.getElementById('description_plate'+
+							document.getElementById('unitn_desc').value).value
+}
+
+
 function send_description() {
 	//var socket = new WebSocket("ws://"+window.location.host+"/ws/client")
 	
