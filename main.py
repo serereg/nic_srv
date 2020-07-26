@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
     redis_client = loop.run_until_complete(redis_connect("localhost", 6379))
-    db_client = db_connect("sqlite:///db.sqlite3", Base)
+    db_client = db_connect("sqlite:///db/db.sqlite3", Base)
     app["redis"] = redis_client
     app["database"] = db_client
 
