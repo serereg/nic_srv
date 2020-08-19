@@ -1,0 +1,44 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+@import url('https://www.w3schools.com/w3css/4/w3.css');
+@import url('https://www.w3schools.com/lib/w3-theme-amber.css');
+
+section
+{
+	color:#FF4545;
+	font-size:24px;
+}
+
+/*
+#hhh:hover
+{
+	color : blue;
+	background-image: url("1.png");
+}
+
+.myclass
+{
+	color:#00FF00;
+	border: 1px solid #00FF00;
+}
+
+.myclass:hover
+{
+	color:#FF0000;
+	border: 1px solid #00FF00;
+}
+
+ body:hover
+{
+	color:#FF0000;
+	background-image: url(1.png);
+}
+ */
+.w3-green
+{
+	background-color:rgba(76,175,80,0.5) !important; ;
+}
+.w3-light-grey
+{
+	background-color:rgba(80,80,80,0.5) !important; ;
+}
+</style>

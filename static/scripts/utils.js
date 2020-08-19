@@ -35,8 +35,7 @@ function send_http(method, params, handler) {
 	.then(data => {handler(data)})
 }
 
-
-function send_ws(method, params) {
+function send_ws(method, params, handler_ws) {
 	if (!glob_socket || glob_socket.readyState > 1) {
 		glob_socket = new WebSocket("ws://"+window.location.host+"/ws/client")
 		glob_socket.onmessage = handler_ws
