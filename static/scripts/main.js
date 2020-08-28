@@ -51,8 +51,9 @@ function auth() {
 }
 
 function get_state() {
+
 	send_ws("state", {}, handler_ws)
-	handler_ws() //
+	//handler_ws() //
 	console.log("get_state() SEND")
 	// if (localStorage.getItem("token")) {
 	if (glob_auth) {
