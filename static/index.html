@@ -52,6 +52,7 @@
 				</div>
 			</header>
 			<div class="w3-row-padding w3-theme">
+
 				<div v-for="cooler in coolers" class="w3-third w3-section" v-show="(show_only_coolers_at_work && cooler.is_reg_on) || !show_only_coolers_at_work">
 					<div class="w3-card-4 w3-display-container"> 
 						<img src="static/images/CKT.png" style="width:100%">
@@ -59,7 +60,7 @@
 							{{cooler.id}}
 						</div>
 						<div v-on:click="curent_cooler_for_editing = cooler.id" 
-						class="w3-display-middle w3-container w3-container w3-card-4"
+						class="w3-display-middle w3-container w3-container w3-card-4"  style="width:65%"
 						v-bind:class="{'w3-light-grey': !cooler.is_reg_on, 'w3-green': cooler.is_reg_on}">
 							<label>Текущая, °С</label>
 							<input readOnly="readOnly" type="number" 
