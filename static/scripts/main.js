@@ -95,7 +95,7 @@ function send_description() {
 }
 
 function handler_ws(event) {
-	let pars = pars__//JSON.parse(event.data).result
+	let pars = JSON.parse(event.data).result
 	console.log(pars)
 	// console.log("GET MESSAGE: " + event.data)
 	// Логика обновления данных
