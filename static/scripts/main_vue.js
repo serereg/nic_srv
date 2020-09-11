@@ -16,6 +16,7 @@ var app = new Vue ({
 	data: {
 		N: 12,
 		coolers: [],
+		cooler_control: {},
 		curent_cooler_for_editing: 1, // относится к отображению
 		connection_watchdog: 0,
 		show_only_coolers_at_work: false
@@ -28,10 +29,13 @@ var app = new Vue ({
 	computed: {
 		init()
 		{
+			this.coolers = []
 			for (let i = 1; i <= this.N; i++) {
 				this.coolers.push(new Cooler(i))
 			}
 			
+			//this.cooler_control = Object.assign({}, this.coolers[0])
+
 			let show = localStorage.getItem("show_busy_tank")
 			if (show == "true")
 				this.show_only_coolers_at_work = true

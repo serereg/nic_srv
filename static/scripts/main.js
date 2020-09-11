@@ -68,7 +68,7 @@ function get_state() {
 function cmd_on()
 {
 	send_ws("command", {
-		"id": app.curent_cooler_for_editing,
+		"id": app.cooler_control.id,
 		"switch": "YOn"
 	})
 }
@@ -76,7 +76,7 @@ function cmd_on()
 function cmd_off()
 {
 	send_ws("command", {
-		"id": app.curent_cooler_for_editing,
+		"id": app.cooler_control.id,
 		"switch": "YOff"
 	})
 }
@@ -85,13 +85,13 @@ function send_description() {
 	pack = {
 		"method": "set_description",
 		"params": {
-			"id": app.curent_cooler_for_editing,
-			"description": app.coolers[app.curent_cooler_for_editing-1].description,
+			"id": app.cooler_control.id,
+			"description": app.cooler_control.description,
 		},
 	}
 	send_ws("set_description", {
-			"id": app.curent_cooler_for_editing,
-			"description": app.coolers[app.curent_cooler_for_editing-1].description,
+			"id": app.cooler_control.id,
+			"description": app.cooler_control.description,
 		})
 }
 

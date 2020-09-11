@@ -61,8 +61,7 @@
 						<div class="w3-padding w3-display-topleft">
 							{{cooler.id}}
 						</div>
-						<div v-on:click="curent_cooler_for_editing = cooler.id" 
-						class="w3-display-middle w3-container w3-container w3-card-4"  style="width:65%"
+						<div class="w3-display-middle w3-container w3-container w3-card-4"  style="width:65%"
 						v-bind:class="{'w3-light-grey': !cooler.is_reg_on, 'w3-green': cooler.is_reg_on}">
 							<label>Текущая, °С</label>
 							<input readOnly="readOnly" type="number" 
@@ -74,12 +73,52 @@
 							<p/>
 							<textarea readOnly="readOnly" class="form-control w3-border w3-round-large" rows="5" type="text" style="width:100%"
 							v-bind:value="cooler.description" maxlength="200"></textarea>
-							
+							<!-- эксперимент с модальным окном -->
+							<button onclick="document.getElementById('id01').style.display='block'" class="w3-btn w3-black"
+							v-on:click="curent_cooler_for_editing = cooler.id; cooler_control = Object.assign({}, cooler)">Управление</button>
 						</div>
+
+						<div id="id01" class="w3-modal">
+							<div class="w3-modal-content w3-card-4">
+							<header class="w3-container w3-black"> 
+								<span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+								<h2>ЦКТ №{{cooler_control.id}}</h2>
+							</header>
+							<div class="w3-container">
+								<img src="static/images/CKT.png" style="width:100%">
+								
+								
+									<label for="write_sp">Задание для поддержания температуры:</label>
+									<input class="w3-input w3-border w3-round-large" 
+									type="number" 
+									v-model.number.lazy="cooler_control.sp"/>
+									
+									<label for="CmdOn CmdOff">Включить/Отключить поддержание температуры:</label>
+									<p/>
+									<button class="w3-button w3-block w3-green" style="width:100%" onclick="cmd_on()"> Вкл </button>
+									<button class="w3-button w3-block w3-gray" style="width:100%" onclick="cmd_off()">Откл</button>
+									<p/>
+									
+									<label for="ckt_description">Изменить описание:</label>
+									<p></p>
+									<textarea class="form-control w3-border w3-round-large w3-middle" rows="5" 
+									type="text" 
+									maxlength="200"
+									v-model.text.lazy = "cooler_control.description"></textarea>
+									
+									<button class="w3-button w3-block w3-gray" style="width:100%" onclick = "send_description()">Изменить описание</button>
+								
+							</div>
+							<footer class="w3-container w3-black">
+								<p></p>
+							</footer>
+							</div>
+						</div>
+
 					</div>
 				</div>
 
-				<datalist id="coolers">
+				<!-- <datalist id="coolers">
 					<option v-for="index in N" v-bind:value="index">
 				</datalist>
 
@@ -87,18 +126,19 @@
 					<div class="w3-card-4 w3-display-container">
 						<img src="static/images/CKT.png" style="width:100%">
 						<div class="w3-display-middle w3-container w3-card-4"
-						v-bind:class="{'w3-light-grey': !coolers[curent_cooler_for_editing-1].is_reg_on, 
-										'w3-green': coolers[curent_cooler_for_editing-1].is_reg_on}">
+						v-bind:class="{'w3-light-grey': !cooler_control.is_reg_on, 
+										'w3-green': cooler_control.is_reg_on}">
 						
 							<label for="unitn">Управление ЦКТ №</label>
 							<input class="w3-input w3-border w3-round-large" 
 							type="number" id="unitn" list="coolers" min="1" v-bind:max="N"
-							v-model.number = "curent_cooler_for_editing"/>
+							v-model.number = "curent_cooler_for_editing"
+							v-on:change = "cooler_control = Object.assign({}, coolers[curent_cooler_for_editing-1])"/>
 							
 							<label for="write_sp">Задание для поддержания температуры:</label>
 							<input class="w3-input w3-border w3-round-large" 
 							type="number" 
-							v-model.number.lazy="coolers[curent_cooler_for_editing-1].sp"/>
+							v-model.number.lazy="cooler_control.sp"/>
 							
 							<label for="CmdOn CmdOff">Включить/Отключить поддержание температуры:</label>
 							<p/>
@@ -110,12 +150,12 @@
 							<textarea class="form-control w3-border w3-round-large" rows="5" 
 							type="text" 
 							maxlength="200"
-							v-model.text.lazy = "coolers[curent_cooler_for_editing-1].description"></textarea>
+							v-model.text.lazy = "cooler_control.description"></textarea>
 							
 							<button class="w3-button w3-round-large w3-light-grey" onclick = "send_description()">Изменить описание</button>
 						</div>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</section>
